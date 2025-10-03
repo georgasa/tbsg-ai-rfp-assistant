@@ -18,10 +18,10 @@ To enable automatic deployment to Azure Container Apps, you need to add these se
 
 ```json
 {
-  "clientId": "390bf354-99b6-40b1-87ac-77bef53181a6",
-  "clientSecret": "5Mu8Q~GFc~YdZkWMcUs3XidPlkaCvsaXI9dbHdcH",
-  "subscriptionId": "58a91cf0-0f39-45fd-a63e-5a9a28c7072b",
-  "tenantId": "d5d2540f-f60a-45ad-86a9-e2e792ee6669",
+  "clientId": "YOUR_CLIENT_ID_HERE",
+  "clientSecret": "YOUR_CLIENT_SECRET_HERE",
+  "subscriptionId": "YOUR_SUBSCRIPTION_ID_HERE",
+  "tenantId": "YOUR_TENANT_ID_HERE",
   "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
   "resourceManagerEndpointUrl": "https://management.azure.com/",
   "activeDirectoryGraphResourceId": "https://graph.windows.net/",
@@ -40,7 +40,7 @@ To enable automatic deployment to Azure Container Apps, you need to add these se
 3. **Value**: Copy and paste this token exactly:
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXBvc3RvbG9zLmdlb3JnYXMiLCJlbWFpbCI6ImFwb3N0b2xvcy5nZW9yZ2FzQHRlbWVub3MuY29tIiwiZXhwIjoxNzYyMDcxNjIzLCJpYXQiOjE3NTk0Nzk2MjMsImlzcyI6InRic2cudGVtZW5vcy5jb20iLCJhdWQiOiJ0ZW1lbm9zLWFwaSJ9.8VuKANbWATjEg24yJU7sxrtilmeJNJEfZ-wUIZ1Y8q0
+YOUR_TEMENOS_JWT_TOKEN_HERE
 ```
 
 4. Click **"Add secret"**
