@@ -85,3 +85,5 @@ echo -e "${BLUE}🌐 After deployment, your app will be available at:${NC}"
 echo "https://$CONTAINER_APP_NAME.$CONTAINER_APP_ENV.azurecontainerapps.io"
 echo ""
 echo -e "${GREEN}🎉 Setup complete! Ready for deployment.${NC}"
+
+

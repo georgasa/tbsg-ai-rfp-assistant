@@ -80,3 +80,5 @@ Write-Host "🌐 After deployment, your app will be available at:" -ForegroundCo
 Write-Host "https://$ContainerAppName.$ContainerAppEnv.azurecontainerapps.io"
 Write-Host ""
 Write-Host "🎉 Setup complete! Ready for deployment." -ForegroundColor Green
+
+

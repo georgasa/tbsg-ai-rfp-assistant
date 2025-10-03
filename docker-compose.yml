@@ -31,3 +31,5 @@ services:
     depends_on:
       - tbsg-ai-app
     restart: unless-stopped
+
+
