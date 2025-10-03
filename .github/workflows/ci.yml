@@ -2,61 +2,16 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   test:
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        python-version: [3.9, 3.10, 3.11]
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov flake8
-    
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    
-    - name: Test with pytest
-      run: |
-        pytest --cov=. --cov-report=xml
-      env:
-        TEMENOS_JWT_TOKEN: ${{ secrets.TEMENOS_JWT_TOKEN }}
-        DEMO_MODE: "true"
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-
-  build:
-    needs: test
     runs-on: ubuntu-latest
     
     steps:
@@ -72,29 +27,115 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Build Docker image
+    - name: Lint with flake8
       run: |
-        docker build -t tbsg-ai-rfp-assistant:${{ github.sha }} .
-        docker tag tbsg-ai-rfp-assistant:${{ github.sha }} tbsg-ai-rfp-assistant:latest
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
-    - name: Test Docker image
+    - name: Test with pytest
       run: |
-        docker run --rm -d -p 5000:5000 --name test-container tbsg-ai-rfp-assistant:latest
-        sleep 10
-        curl -f http://localhost:5000/api/test-connection || exit 1
-        docker stop test-container
+        pip install pytest
+        pytest --tb=short
 
-  deploy:
-    needs: [test, build]
+  build:
+    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
       with:
-        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Set up Azure CLI
+      run: |
+        az extension add --name containerapp
+    
+    - name: Deploy to Azure Container Apps
+      run: |
+        # Set variables
+        RESOURCE_GROUP="tolis-working-rg"
+        CONTAINER_APP_ENV="tolis-aca-env"
+        CONTAINER_APP_NAME="tbsg-ai-rfp-assistant"
+        IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+        
+        # Get the container app environment
+        echo "Getting container app environment..."
+        az containerapp env show --name $CONTAINER_APP_ENV --resource-group $RESOURCE_GROUP
+        
+        # Check if container app exists
+        if az containerapp show --name $CONTAINER_APP_NAME --resource-group $RESOURCE_GROUP >/dev/null 2>&1; then
+          echo "Updating existing container app..."
+          az containerapp update \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --image $IMAGE_NAME \
+            --set-env-vars DEMO_MODE=false PORT=5000
+        else
+          echo "Creating new container app..."
+          az containerapp create \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $CONTAINER_APP_ENV \
+            --environment $CONTAINER_APP_ENV \
+            --image $IMAGE_NAME \
+            --target-port 5000 \
+            --ingress external \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --cpu 0.5 \
+            --memory 1.0Gi \
+            --env-vars DEMO_MODE=false PORT=5000 \
+            --secrets temenos-jwt-token="${{ secrets.TEMENOS_JWT_TOKEN }}" \
+            --secret-env-vars TEMENOS_JWT_TOKEN=temenos-jwt-token
+        fi
+        
+        # Get the URL
+        echo "Getting container app URL..."
+        URL=$(az containerapp show --name $CONTAINER_APP_NAME --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+        echo "Application deployed at: https://$URL"
