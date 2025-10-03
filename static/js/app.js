@@ -218,11 +218,11 @@ class TemenosRAGApp {
 
         try {
             // Simulate progress updates during analysis
+            let currentProgress = 5;
             const progressInterval = setInterval(() => {
-                const currentProgress = parseInt(document.querySelector('.progress-bar').style.width) || 5;
                 if (currentProgress < 90) {
-                    const newProgress = Math.min(currentProgress + Math.random() * 15, 90);
-                    this.updateProgress(newProgress, `Analyzing ${selectedProducts.join(', ')}...`);
+                    currentProgress = Math.min(currentProgress + Math.random() * 10 + 5, 90);
+                    this.updateProgress(Math.round(currentProgress), `Analyzing ${selectedProducts.join(', ')}...`);
                 }
             }, 1000);
             

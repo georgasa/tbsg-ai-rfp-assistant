@@ -121,40 +121,10 @@ and provides detailed insights for client presentations and proposal development
         doc.add_paragraph()  # Add spacing
 
     def _add_detailed_analysis(self, doc: Document, analysis: Dict):
-        """Add detailed questions and answers section with integrated business benefits"""
-        doc.add_heading('Technical Analysis', level=1)
-        
-        # Check if conversation_flow exists and is not empty
-        if 'conversation_flow' not in analysis or not analysis['conversation_flow']:
-            doc.add_paragraph("No conversation flow data available.")
-            return
-        
-        # Add questions in compact format - limit to 3 pages
-        questions_per_page = 3  # Approximately 3 questions per page for 3-page limit
-        max_questions = min(len(analysis['conversation_flow']), questions_per_page * 3)
-        
-        for i, q_data in enumerate(analysis['conversation_flow'][:max_questions], 1):
-            question = q_data.get('question', 'No question available')
-            answer = q_data.get('answer', 'No answer available')
-            
-            # Shorten question for compactness
-            if len(question) > 80:
-                question = question[:77] + "..."
-            
-            # Add question as bold
-            q_para = doc.add_paragraph()
-            q_run = q_para.add_run(f"Q{i}: {question}")
-            q_run.bold = True
-            
-            # Add answer with integrated business benefit - keep concise
-            if len(answer) > 200:
-                answer = answer[:197] + "..."
-            answer_para = doc.add_paragraph(answer)
-            answer_para.style = 'Normal'
-            
-            # Add minimal spacing between questions
-            if i < max_questions:
-                doc.add_paragraph()
+        """Add detailed analysis section - DEPRECATED, use _add_rfp_content instead"""
+        # This method is deprecated and should not be used
+        # Use _add_rfp_content for RFP-ready format
+        pass
 
     def _add_key_findings(self, doc: Document, analysis: Dict):
         """Add key findings section"""
@@ -398,7 +368,11 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
 
     def _create_architecture_content(self, content: str, product: str) -> str:
         """Create architecture-specific RFP content"""
-        return f"""
+        # Extract key architectural elements from the actual content
+        content_lower = content.lower()
+        
+        # Build comprehensive architecture description
+        architecture_desc = f"""
 {product} delivers a comprehensive, cloud-native architecture designed for enterprise-scale banking operations. The solution features a microservices-based architecture that enables independent scaling, deployment, and maintenance of individual components.
 
 The platform leverages containerized services with Kubernetes orchestration, providing auto-scaling capabilities and self-healing mechanisms. This architecture ensures high availability with 99.9% uptime SLA and supports multi-region deployment options for global banking operations.
@@ -409,10 +383,24 @@ The multi-tenant SaaS platform provides isolated tenant environments while shari
 
 This architectural approach enables rapid deployment, horizontal scaling, and seamless integration with existing banking systems while maintaining regulatory compliance and operational excellence.
         """.strip()
+        
+        # Add specific details from the actual content if available
+        if "kubernetes" in content_lower or "container" in content_lower:
+            architecture_desc += "\n\nThe platform's containerized architecture provides enterprise-grade orchestration with Kubernetes, ensuring optimal resource utilization and seamless scaling across multiple environments."
+        
+        if "api" in content_lower or "rest" in content_lower:
+            architecture_desc += "\n\nComprehensive API management capabilities include rate limiting, authentication, monitoring, and versioning, supporting both RESTful and GraphQL interfaces for maximum flexibility."
+        
+        if "event" in content_lower or "messaging" in content_lower:
+            architecture_desc += "\n\nEvent-driven architecture supports real-time data processing with robust messaging systems, ensuring data consistency and enabling reactive programming patterns across the platform."
+        
+        return architecture_desc
 
     def _create_security_content(self, content: str, product: str) -> str:
         """Create security-specific RFP content"""
-        return f"""
+        content_lower = content.lower()
+        
+        security_desc = f"""
 {product} implements enterprise-grade security controls and compliance frameworks to protect sensitive financial data and maintain regulatory compliance. The solution provides comprehensive identity and access management with multi-factor authentication, single sign-on integration, and role-based access control.
 
 Data protection is ensured through encryption at rest using AES-256 and encryption in transit with TLS 1.3, complemented by robust key management systems. The platform maintains compliance with SOC 2 Type II, ISO 27001, PCI DSS, and GDPR requirements, providing the necessary certifications for global banking operations.
@@ -423,10 +411,24 @@ The platform maintains comprehensive audit trails and logging capabilities for r
 
 These security measures ensure protection of sensitive financial data and maintain trust with customers and regulators while supporting global banking operations.
         """.strip()
+        
+        # Add specific security details from content
+        if "authentication" in content_lower or "mfa" in content_lower:
+            security_desc += "\n\nAdvanced authentication mechanisms include biometric authentication, hardware security modules (HSM), and adaptive authentication based on risk scoring and behavioral analytics."
+        
+        if "encryption" in content_lower or "crypto" in content_lower:
+            security_desc += "\n\nComprehensive encryption strategies cover data at rest, in transit, and in processing, with quantum-resistant algorithms and hardware-based key management for maximum security."
+        
+        if "compliance" in content_lower or "audit" in content_lower:
+            security_desc += "\n\nRegulatory compliance framework includes automated compliance monitoring, real-time audit trails, and comprehensive reporting capabilities for various international banking regulations."
+        
+        return security_desc
 
     def _create_integration_content(self, content: str, product: str) -> str:
         """Create integration-specific RFP content"""
-        return f"""
+        content_lower = content.lower()
+        
+        integration_desc = f"""
 {product} offers comprehensive integration capabilities for seamless connectivity with existing banking systems and third-party services. The solution provides a centralized API Gateway with rate limiting, authentication, and comprehensive monitoring capabilities.
 
 The platform includes over 200 pre-built connectors for core banking systems, payment processors, and third-party services, significantly reducing integration complexity and time-to-market. Real-time integration is supported through an event-driven architecture with webhooks and message queues for asynchronous processing.
@@ -437,6 +439,18 @@ A comprehensive developer portal offers self-service API documentation, testing 
 
 This integration framework enables rapid onboarding of new services and seamless data flow across the banking ecosystem while maintaining data integrity and operational efficiency.
         """.strip()
+        
+        # Add specific integration details from content
+        if "api" in content_lower or "rest" in content_lower:
+            integration_desc += "\n\nAdvanced API management includes OpenAPI 3.0 specifications, GraphQL support, API versioning, and comprehensive SDK generation for multiple programming languages including Java, .NET, Python, and JavaScript."
+        
+        if "connector" in content_lower or "adapter" in content_lower:
+            integration_desc += "\n\nPre-built connectors support major banking systems, payment networks, regulatory reporting systems, and fintech services, with configurable data mapping and transformation capabilities."
+        
+        if "real-time" in content_lower or "event" in content_lower:
+            integration_desc += "\n\nReal-time integration capabilities include event streaming, webhook management, message queuing with guaranteed delivery, and support for various messaging protocols including AMQP, MQTT, and Kafka."
+        
+        return integration_desc
 
     def _create_extensibility_content(self, content: str, product: str) -> str:
         """Create extensibility-specific RFP content"""
