@@ -32,20 +32,20 @@ def test_shared_config():
     assert 'demo_mode' in API_CONFIG
 
 def test_rag_client_initialization():
-    """Test that RAGClient can be initialized"""
-    from rag_client import RAGClient
+    """Test that TemenosRAGClient can be initialized"""
+    from rag_client import TemenosRAGClient
     
     # Test initialization with demo mode
-    client = RAGClient()
+    client = TemenosRAGClient()
     assert client is not None
     assert hasattr(client, 'jwt_token')
 
 def test_word_generator_initialization():
-    """Test that WordGenerator can be initialized"""
-    from word_generator import WordGenerator
+    """Test that WordDocumentGenerator can be initialized"""
+    from word_generator import WordDocumentGenerator
     
     # Test initialization
-    generator = WordGenerator()
+    generator = WordDocumentGenerator()
     assert generator is not None
     assert hasattr(generator, 'docx_available')
 
