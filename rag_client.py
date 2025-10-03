@@ -370,7 +370,7 @@ This solution enables banks to modernize their operations while maintaining secu
                 "region": region,
                 "model_ids": [model_id],
                 "answer": answer,
-                "context_used": bool(context),
+                "context_used": bool(context) if context else False,
                 "models_queried": 1
             },
             "metadata": {

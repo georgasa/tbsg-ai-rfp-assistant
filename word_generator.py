@@ -201,6 +201,7 @@ and provides detailed insights for client presentations and proposal development
             self._add_product_sections(doc, combined_analysis)
             
             # Add author info
+            products = combined_analysis.get('products', [])
             self._add_author_info(doc, {
                 'pillar': pillar,
                 'product': products,
