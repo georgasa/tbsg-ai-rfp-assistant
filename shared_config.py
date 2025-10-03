@@ -71,6 +71,14 @@ UI_CONFIG = {
     }
 }
 
+# Region mapping for API compatibility
+REGION_MAPPING = {
+    "GLOBAL": "global",
+    "EMEA": "mea", 
+    "AMERICAS": "americas",
+    "APAC": "us"  # API uses 'us' for APAC region
+}
+
 def get_available_categories_for_region(region: str) -> List[str]:
     """Get available categories for a specific region"""
     return CATEGORIES

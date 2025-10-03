@@ -149,8 +149,8 @@ class TemenosRAGClient:
             
             payload = {
                 "question": question,
-                "region": region,
-                "model_id": model_id,
+                "region": region.lower(),  # API expects lowercase regions
+                "RAGmodelId": model_id,    # API uses RAGmodelId instead of model_id
                 "context": context
             }
             
@@ -162,7 +162,13 @@ class TemenosRAGClient:
             )
             
             if response.status_code == 200:
-                return response.json()
+                response_data = response.json()
+                # Handle the new API response format
+                if response_data.get("status") == "success" and "data" in response_data:
+                    return response_data
+                else:
+                    print(f"API returned error: {response_data}")
+                    return None
             elif response.status_code in [400, 401, 403]:
                 # API is reachable but request has issues - try to get response anyway
                 try:
@@ -344,8 +350,20 @@ This integration framework enables rapid onboarding of new services and seamless
 This solution enables banks to modernize their operations while maintaining security, compliance, and operational excellence."""
         
         return {
+            "status": "success",
             "data": {
-                "answer": answer
+                "question": question,
+                "region": region,
+                "model_ids": [model_id],
+                "answer": answer,
+                "context_used": bool(context),
+                "models_queried": 1
+            },
+            "metadata": {
+                "api_version": "v1.0",
+                "timestamp": datetime.now().isoformat(),
+                "response_length": len(answer),
+                "query_type": "single_model"
             }
         }
     

@@ -1,0 +1,285 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Temenos Dashboard API",
+    "description": "API documentation for Temenos Dashboard - an AI-powered RAG system",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@temenos.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://tbsg.temenos.com/api/v1.0",
+      "description": "Production API"
+    },
+    {
+      "url": "/api/v1.0",
+      "description": "Development API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session"
+      }
+    },
+    "schemas": {
+      "RAGQuery": {
+        "type": "object",
+        "required": ["question", "region", "RAGmodelId"],
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The query or question to ask the RAG model(s)",
+            "example": "What is Temenos Payments architecture?"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region scope for the query",
+            "enum": ["global", "mea", "us", "americas"],
+            "example": "global"
+          },
+          "RAGmodelId": {
+            "type": "string",
+            "description": "ID of the RAG model(s) to query. For multiple models, separate with commas (e.g., 'ModularBanking, Payments, TechTAP')",
+            "example": "ModularBanking, Payments, TechTAP"
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional additional context for the query",
+            "example": "Focus on cloud native architecture"
+          }
+        }
+      },
+      "RAGResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error"],
+            "description": "Status of the request"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string", "description": "The original question asked" },
+              "region": { "type": "string", "description": "The region used for the query" },
+              "model_ids": { "type": "array", "items": {"type": "string"}, "description": "The RAG model(s) used for the query" },
+              "answer": { "type": "string", "description": "The response from the RAG model(s)" },
+              "context_used": { "type": "boolean", "description": "Whether additional context was provided" },
+              "models_queried": { "type": "integer", "description": "Number of models queried" }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "api_version": { "type": "string", "description": "API version" },
+              "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the response" },
+              "response_length": { "type": "integer", "description": "Length of the response" },
+              "query_type": { "type": "string", "enum": ["single_model", "multi_model"], "description": "Type of query performed" }
+            }
+          }
+        },
+        "example": {
+          "status": "success",
+          "data": {
+            "question": "What is Temenos Modular Banking and Payments?",
+            "region": "global",
+            "model_ids": ["ModularBanking", "Payments", "TechTAP"],
+            "answer": "Detailed response from the RAG models...",
+            "context_used": false,
+            "models_queried": 3
+          },
+          "metadata": {
+            "api_version": "v1.0",
+            "timestamp": "2025-07-26T20:30:00.000000",
+            "response_length": 1234,
+            "query_type": "multi_model"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["error"],
+            "description": "Error status"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the error"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "degraded", "error"],
+            "description": "Health status"
+          },
+          "version": {
+            "type": "string",
+            "description": "API version"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the health check"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/query": {
+      "post": {
+        "summary": "Query one or more RAG models",
+        "description": "Send a question to one or more RAG models and get a response. For multiple models, provide a comma-separated list in the RAGmodelId field.",
+        "security": [{"BearerAuth": []}],
+        "tags": ["REST API"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RAGQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RAGResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models": {
+      "get": {
+        "summary": "Get available RAG models",
+        "description": "Retrieve the list of all available RAG models with their details",
+        "security": [{"BearerAuth": []}],
+        "tags": ["REST API"],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Model ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Display name"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "region": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Check the health status of the API",
+        "security": [{"BearerAuth": []}],
+        "tags": ["REST API"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
