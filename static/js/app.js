@@ -214,9 +214,18 @@ class TemenosRAGApp {
         };
 
         this.showProgress();
-        this.updateProgress(0, 'Starting analysis...');
+        this.updateProgress(5, 'Initializing analysis...');
 
         try {
+            // Simulate progress updates during analysis
+            const progressInterval = setInterval(() => {
+                const currentProgress = parseInt(document.querySelector('.progress-bar').style.width) || 5;
+                if (currentProgress < 90) {
+                    const newProgress = Math.min(currentProgress + Math.random() * 15, 90);
+                    this.updateProgress(newProgress, `Analyzing ${selectedProducts.join(', ')}...`);
+                }
+            }, 1000);
+            
             const response = await fetch(`${this.apiBase}/analyze`, {
                 method: 'POST',
                 headers: {
@@ -225,6 +234,9 @@ class TemenosRAGApp {
                 body: JSON.stringify(analysisData)
             });
 
+            clearInterval(progressInterval);
+            this.updateProgress(95, 'Generating Word document...');
+            
             const data = await response.json();
 
             if (data.success) {
