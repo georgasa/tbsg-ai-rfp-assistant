@@ -1,6 +1,15 @@
-# Temenos RAG AI System
+# TBSG AI RFP Assistant
+
+[![CI/CD Pipeline](https://github.com/georgasa/tbsg-ai-rfp-assistant/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/georgasa/tbsg-ai-rfp-assistant/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
 
 A comprehensive web application for generating RFP responses using Temenos RAG API with a modern, Temenos Explorer-inspired interface.
+
+## 🔗 **Repository**
+- **GitHub**: https://github.com/georgasa/tbsg-ai-rfp-assistant
+- **Live Demo**: [Coming Soon - Azure Deployment]
 
 ## 🚀 Features
 
