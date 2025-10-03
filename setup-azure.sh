@@ -29,7 +29,7 @@ if ! az account show &> /dev/null; then
 fi
 
 # Set variables
-SUBSCRIPTION_ID="58a91cf0-0f39-45fd-a63e-5a9a28c7072b"
+SUBSCRIPTION_ID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 RESOURCE_GROUP="tolis-working-rg"
 CONTAINER_APP_ENV="tolis-aca-env"
 CONTAINER_APP_NAME="tbsg-ai-rfp-assistant"

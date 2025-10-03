@@ -2,7 +2,7 @@
 # This script sets up the necessary Azure resources and GitHub secrets
 
 param(
-    [string]$SubscriptionId = "58a91cf0-0f39-45fd-a63e-5a9a28c7072b",
+    [string]$SubscriptionId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     [string]$ResourceGroup = "tolis-working-rg",
     [string]$ContainerAppEnv = "tolis-aca-env",
     [string]$ContainerAppName = "tbsg-ai-rfp-assistant",
