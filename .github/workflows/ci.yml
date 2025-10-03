@@ -121,7 +121,7 @@ jobs:
           echo "Creating new container app..."
           az containerapp create \
             --name $CONTAINER_APP_NAME \
-            --resource-group $CONTAINER_APP_ENV \
+            --resource-group $RESOURCE_GROUP \
             --environment $CONTAINER_APP_ENV \
             --image $IMAGE_NAME \
             --target-port 5000 \
@@ -132,7 +132,7 @@ jobs:
             --memory 1.0Gi \
             --env-vars DEMO_MODE=false PORT=5000 \
             --secrets temenos-jwt-token="${{ secrets.TEMENOS_JWT_TOKEN }}" \
-            --secret-env-vars TEMENOS_JWT_TOKEN=temenos-jwt-token
+            --set-secrets TEMENOS_JWT_TOKEN=temenos-jwt-token
         fi
         
         # Get the URL
