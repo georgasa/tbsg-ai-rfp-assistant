@@ -149,6 +149,9 @@ class TemenosRAGClient:
     
     def analyze_pillar(self, region: str, model_id: str, product_name: str, pillar: str) -> Dict:
         """Analyze a specific technology pillar"""
+        # Reset API calls counter for this analysis
+        self.api_calls_count = 0
+        
         pillar_config = self.technology_pillars[pillar]
         context = pillar_config["context"]
         
