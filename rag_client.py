@@ -202,6 +202,9 @@ class TemenosRAGClient:
         # Update API calls count
         pillar_data["api_calls_made"] = self.api_calls_count
         
+        # Debug: Print API calls count
+        print(f"DEBUG: API calls made for {product_name} - {pillar}: {self.api_calls_count}")
+        
         return pillar_data
     
     def _extract_key_points_from_answer(self, answer: str) -> List[str]:
