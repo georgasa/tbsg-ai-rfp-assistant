@@ -182,7 +182,7 @@ and provides detailed insights for client presentations and proposal development
             return None
 
     def create_combined_document(self, combined_analysis: Dict) -> Optional[str]:
-        """Create a combined Word document from multiple products analysis"""
+        """Create a combined Word document from multiple products analysis with structured chapters"""
         if not self.docx_available:
             return None
         
@@ -198,8 +198,8 @@ and provides detailed insights for client presentations and proposal development
             doc.add_heading(pillar, 0)
             doc.add_paragraph()
             
-            # Add product-specific sections with rich content
-            self._add_product_sections(doc, combined_analysis)
+            # Add structured chapters by component and information type
+            self._add_structured_chapters(doc, combined_analysis)
             
             # Add author info
             products = combined_analysis.get('products', [])
@@ -266,6 +266,187 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         else:
             doc.add_paragraph("No specific key findings identified in this combined analysis.")
         doc.add_paragraph()
+
+    def _add_structured_chapters(self, doc: Document, combined_analysis: Dict):
+        """Add structured chapters organized by component and information type"""
+        pillar = combined_analysis.get('pillar', 'Unknown')
+        product_analyses = combined_analysis.get('product_analyses', [])
+        
+        # Chapter 1: Executive Summary
+        doc.add_heading('Chapter 1: Executive Summary', level=1)
+        self._add_executive_summary_chapter(doc, combined_analysis)
+        doc.add_page_break()
+        
+        # Chapter 2: Product-Specific Analysis
+        doc.add_heading('Chapter 2: Product-Specific Analysis', level=1)
+        for product_data in product_analyses:
+            product_name = product_data.get('product', 'Unknown')
+            analysis = product_data.get('analysis', {})
+            
+            doc.add_heading(f'2.{len([p for p in product_analyses if product_analyses.index(p) <= product_analyses.index(product_data)])} {product_name} - {pillar} Capabilities', level=2)
+            self._add_product_detailed_analysis(doc, analysis, product_name)
+            doc.add_paragraph()  # Add spacing between products
+        
+        doc.add_page_break()
+        
+        # Chapter 3: Comparative Analysis
+        doc.add_heading('Chapter 3: Comparative Analysis', level=1)
+        self._add_comparative_analysis_chapter(doc, combined_analysis)
+        doc.add_page_break()
+        
+        # Chapter 4: Key Findings and Recommendations
+        doc.add_heading('Chapter 4: Key Findings and Recommendations', level=1)
+        self._add_key_findings_chapter(doc, combined_analysis)
+
+    def _add_executive_summary_chapter(self, doc: Document, combined_analysis: Dict):
+        """Add executive summary chapter"""
+        pillar = combined_analysis.get('pillar', 'Unknown')
+        products = combined_analysis.get('products', [])
+        region = combined_analysis.get('region', 'Unknown')
+        
+        doc.add_paragraph(f"This document provides a comprehensive analysis of {pillar} capabilities across Temenos products: {', '.join(products)}. The analysis covers the {region} region and examines the architectural, functional, and operational aspects of each product's {pillar.lower()} capabilities.")
+        doc.add_paragraph()
+        
+        # Add summary of each product
+        product_analyses = combined_analysis.get('product_analyses', [])
+        for product_data in product_analyses:
+            product_name = product_data.get('product', 'Unknown')
+            analysis = product_data.get('analysis', {})
+            answers = analysis.get('answers', [])
+            
+            if answers:
+                # Extract first sentence or key point from the answer
+                first_answer = answers[0] if answers else ""
+                summary_sentence = first_answer.split('.')[0] + '.' if '.' in first_answer else first_answer[:200] + '...'
+                doc.add_paragraph(f"• {product_name}: {summary_sentence}")
+        
+        doc.add_paragraph()
+
+    def _add_product_detailed_analysis(self, doc: Document, analysis: Dict, product_name: str):
+        """Add detailed analysis for a specific product"""
+        answers = analysis.get('answers', [])
+        if answers:
+            # Combine all answers into comprehensive content
+            combined_content = self._create_comprehensive_product_content(answers, analysis.get('pillar', 'Unknown'), product_name)
+            
+            # Split into logical sections based on content
+            sections = self._split_content_into_sections(combined_content, analysis.get('pillar', 'Unknown'))
+            
+            for section_title, section_content in sections.items():
+                if section_content.strip():
+                    doc.add_heading(section_title, level=3)
+                    doc.add_paragraph(section_content)
+                    doc.add_paragraph()
+        else:
+            doc.add_paragraph(f"No detailed analysis available for {product_name}.")
+
+    def _add_comparative_analysis_chapter(self, doc: Document, combined_analysis: Dict):
+        """Add comparative analysis chapter"""
+        pillar = combined_analysis.get('pillar', 'Unknown')
+        products = combined_analysis.get('products', [])
+        
+        doc.add_paragraph(f"This section provides a comparative analysis of {pillar} capabilities across the analyzed products: {', '.join(products)}.")
+        doc.add_paragraph()
+        
+        # Add comparison table or structured comparison
+        doc.add_heading('3.1 Capability Comparison', level=2)
+        doc.add_paragraph("The following table compares key capabilities across products:")
+        doc.add_paragraph()
+        
+        # Create a simple comparison (in a real implementation, you'd create a proper table)
+        product_analyses = combined_analysis.get('product_analyses', [])
+        for product_data in product_analyses:
+            product_name = product_data.get('product', 'Unknown')
+            analysis = product_data.get('analysis', {})
+            key_points = analysis.get('key_points', [])
+            
+            doc.add_heading(f'{product_name} Key Strengths:', level=3)
+            for point in key_points[:5]:  # Show top 5 key points
+                doc.add_paragraph(f"• {point}")
+            doc.add_paragraph()
+
+    def _add_key_findings_chapter(self, doc: Document, combined_analysis: Dict):
+        """Add key findings and recommendations chapter"""
+        pillar = combined_analysis.get('pillar', 'Unknown')
+        products = combined_analysis.get('products', [])
+        
+        doc.add_heading('4.1 Key Findings', level=2)
+        doc.add_paragraph(f"Based on the analysis of {pillar} capabilities across {', '.join(products)}, the following key findings have been identified:")
+        doc.add_paragraph()
+        
+        # Extract key findings from all products
+        all_key_points = []
+        product_analyses = combined_analysis.get('product_analyses', [])
+        for product_data in product_analyses:
+            analysis = product_data.get('analysis', {})
+            key_points = analysis.get('key_points', [])
+            all_key_points.extend(key_points)
+        
+        # Show top findings
+        for i, point in enumerate(all_key_points[:10], 1):  # Show top 10 findings
+            doc.add_paragraph(f"{i}. {point}")
+        
+        doc.add_paragraph()
+        doc.add_heading('4.2 Recommendations', level=2)
+        doc.add_paragraph("Based on the analysis, the following recommendations are made:")
+        doc.add_paragraph()
+        doc.add_paragraph("• Evaluate the specific requirements and select the most appropriate product based on the detailed capabilities outlined in this document.")
+        doc.add_paragraph("• Consider the comparative strengths and weaknesses of each product in relation to your specific use case.")
+        doc.add_paragraph("• Review the technical implementation details and ensure alignment with your existing infrastructure and requirements.")
+
+    def _split_content_into_sections(self, content: str, pillar: str) -> Dict[str, str]:
+        """Split content into logical sections based on pillar type"""
+        sections = {}
+        
+        if pillar == "Architecture":
+            sections = {
+                "Design Philosophy": self._extract_section_content(content, ["design philosophy", "architectural approach", "design principles"]),
+                "Deployment Options": self._extract_section_content(content, ["deployment", "cloud", "on-premises", "hybrid"]),
+                "Scalability & Performance": self._extract_section_content(content, ["scalability", "performance", "scaling mechanisms"]),
+                "High Availability": self._extract_section_content(content, ["high availability", "disaster recovery", "fault tolerance"]),
+                "Architectural Patterns": self._extract_section_content(content, ["microservices", "layered", "event-driven", "patterns"]),
+                "Containerization": self._extract_section_content(content, ["containerization", "orchestration", "kubernetes", "docker"]),
+                "Cloud-Native Features": self._extract_section_content(content, ["cloud-native", "cloud capabilities", "native features"]),
+                "Data Architecture": self._extract_section_content(content, ["data architecture", "data flow", "data management"]),
+                "API Management": self._extract_section_content(content, ["API management", "gateway", "API capabilities"]),
+                "Multi-Tenancy": self._extract_section_content(content, ["multi-tenancy", "tenant isolation", "tenant management"])
+            }
+        elif pillar == "Security":
+            sections = {
+                "Security Features": self._extract_section_content(content, ["security features", "built-in security", "security capabilities"]),
+                "Authentication": self._extract_section_content(content, ["authentication", "identity management", "user identity"]),
+                "Authorization": self._extract_section_content(content, ["authorization", "access control", "permissions"]),
+                "Encryption": self._extract_section_content(content, ["encryption", "data protection", "encryption standards"]),
+                "Compliance": self._extract_section_content(content, ["compliance", "regulatory", "standards"]),
+                "Monitoring": self._extract_section_content(content, ["security monitoring", "threat detection", "monitoring"]),
+                "Auditing": self._extract_section_content(content, ["audit", "logging", "audit trail"]),
+                "Governance": self._extract_section_content(content, ["governance", "policies", "security policies"])
+            }
+        else:
+            # Generic sections for other pillars
+            sections = {
+                "Overview": content[:len(content)//3] if content else "",
+                "Key Capabilities": content[len(content)//3:2*len(content)//3] if content else "",
+                "Technical Details": content[2*len(content)//3:] if content else ""
+            }
+        
+        return sections
+
+    def _extract_section_content(self, content: str, keywords: List[str]) -> str:
+        """Extract content related to specific keywords"""
+        if not content:
+            return ""
+        
+        # Simple keyword-based extraction
+        sentences = content.split('.')
+        relevant_sentences = []
+        
+        for sentence in sentences:
+            sentence_lower = sentence.lower()
+            if any(keyword in sentence_lower for keyword in keywords):
+                relevant_sentences.append(sentence.strip())
+        
+        return '. '.join(relevant_sentences) + '.' if relevant_sentences else ""
 
     def _add_product_sections(self, doc: Document, combined_analysis: Dict):
         """Add product-specific analysis sections with rich content"""
