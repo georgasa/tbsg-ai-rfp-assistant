@@ -20,6 +20,7 @@ class TemenosRAGClient:
         self.jwt_token = jwt_token or API_CONFIG['jwt_token']
         self.base_url = API_CONFIG['base_url']
         self.timeout = API_CONFIG['timeout']
+        self.api_calls_count = 0  # Track API calls
         
         # Technology pillars configuration for RFP responses
         self.technology_pillars = {
@@ -151,6 +152,9 @@ class TemenosRAGClient:
     
     def query_rag(self, question: str, region: str, model_id: str, context: str = "") -> Optional[Dict]:
         """Query the RAG API with a question"""
+        # Increment API calls counter
+        self.api_calls_count += 1
+        
         # Check if demo mode is enabled
         if API_CONFIG.get("demo_mode", False):
             return self._get_demo_response(question, model_id, region, context)
@@ -214,6 +218,7 @@ class TemenosRAGClient:
             "answers": [],
             "conversation_flow": [],
             "key_points": [],
+            "api_calls_made": 0,  # Will be updated after analysis
             "timestamp": datetime.now().isoformat()
         }
         
@@ -246,6 +251,9 @@ class TemenosRAGClient:
         
         # Generate summary
         pillar_data["summary"] = self._generate_pillar_summary(pillar_data)
+        
+        # Update API calls count
+        pillar_data["api_calls_made"] = self.api_calls_count
         
         return pillar_data
     
