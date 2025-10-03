@@ -229,11 +229,11 @@ and provides detailed insights for client presentations and proposal development
             doc.add_paragraph(f'Products: {products}')
             doc.add_paragraph()
             
-                # Add combined RFP content
-                self._add_combined_rfp_content(doc, combined_analysis)
-                
-                # Add product-specific sections
-                self._add_product_sections(doc, combined_analysis)
+            # Add combined RFP content
+            self._add_combined_rfp_content(doc, combined_analysis)
+            
+            # Add product-specific sections
+            self._add_product_sections(doc, combined_analysis)
             
             # Add author info
             self._add_author_info(doc, {
