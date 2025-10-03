@@ -175,7 +175,19 @@ and provides detailed insights for client presentations and proposal development
             with open(json_filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            return self.create_document(data)
+            # Structure the data properly for create_document
+            structured_data = {
+                "metadata": {
+                    "pillar": data.get('pillar', 'Unknown'),
+                    "product": data.get('product', 'Unknown'),
+                    "region": data.get('region', 'Unknown'),
+                    "timestamp": data.get('timestamp', ''),
+                    "api_calls_made": data.get('api_calls_made', 0)
+                },
+                "analysis": data
+            }
+            
+            return self.create_document(structured_data)
             
         except Exception as e:
             print(f"Error converting JSON to Word: {e}")
@@ -203,11 +215,8 @@ and provides detailed insights for client presentations and proposal development
             
             # Add author info
             products = combined_analysis.get('products', [])
-            # Calculate total API calls from all product analyses
-            total_api_calls = sum(
-                analysis.get('analysis', {}).get('api_calls_made', 0) 
-                for analysis in combined_analysis.get('product_analyses', [])
-            )
+            # Get total API calls from combined analysis
+            total_api_calls = combined_analysis.get('total_api_calls', 0)
             self._add_author_info(doc, {
                 'pillar': pillar,
                 'product': products,

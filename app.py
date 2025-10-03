@@ -112,6 +112,7 @@ def analyze_pillar():
             "combined_answers": [],
             "combined_key_points": [],
             "product_analyses": [],
+            "total_api_calls": 0,  # Track total API calls
             "timestamp": datetime.now().isoformat()
         }
         
@@ -140,6 +141,10 @@ def analyze_pillar():
                 "product": product_name,
                 "analysis": pillar_data
             })
+            
+            # Add API calls count
+            if 'api_calls_made' in pillar_data:
+                combined_analysis["total_api_calls"] += pillar_data['api_calls_made']
             
             # Combine answers and key points
             if 'answers' in pillar_data:
