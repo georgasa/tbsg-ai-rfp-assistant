@@ -153,7 +153,7 @@ class TemenosRAGClient:
         """Query the RAG API with a question"""
         # Check if demo mode is enabled
         if API_CONFIG.get("demo_mode", False):
-            return self._get_demo_response(question, model_id, region)
+            return self._get_demo_response(question, model_id, region, context)
             
         try:
             headers = {
@@ -306,7 +306,7 @@ class TemenosRAGClient:
         
         return filepath
 
-    def _get_demo_response(self, question: str, model_id: str, region: str) -> Dict:
+    def _get_demo_response(self, question: str, model_id: str, region: str, context: str = "") -> Dict:
         """Generate realistic demo response for testing purposes"""
         # Extract key terms from question for context-aware response
         question_lower = question.lower()
