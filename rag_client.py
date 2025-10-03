@@ -34,7 +34,14 @@ class TemenosRAGClient:
                     "What are the high availability and disaster recovery architectural features?",
                     "How is {product} designed for performance and what are the key performance characteristics?",
                     "What architectural patterns are used (microservices, layered, event-driven) and why?",
-                    "How does the architecture support different deployment environments and configurations?"
+                    "How does the architecture support different deployment environments and configurations?",
+                    "What containerization and orchestration technologies are used in {product}?",
+                    "How does {product} implement event-driven architecture and messaging patterns?",
+                    "What are the specific cloud-native features and capabilities of {product}?",
+                    "How does {product} handle data consistency and transaction management across distributed components?",
+                    "What are the specific API management and gateway capabilities in {product}?",
+                    "What are the data architecture and data flow patterns in {product}?",
+                    "How does {product} support multi-tenancy and tenant isolation?"
                 ]
             },
             "Extensibility": {
@@ -76,7 +83,14 @@ class TemenosRAGClient:
                     "What compliance standards and regulatory requirements are supported?",
                     "How does {product} handle security monitoring and threat detection?",
                     "What audit and logging capabilities are available for security events?",
-                    "How does {product} support security policies and governance?"
+                    "How does {product} support security policies and governance?",
+                    "What are the specific identity and access management capabilities in {product}?",
+                    "How does {product} implement multi-factor authentication and single sign-on?",
+                    "What are the data encryption standards and key management practices in {product}?",
+                    "How does {product} handle security auditing and compliance reporting?",
+                    "What are the network security and firewall capabilities in {product}?",
+                    "How does {product} implement vulnerability management and security scanning?",
+                    "What are the incident response and security monitoring capabilities in {product}?"
                 ]
             },
             "Observability": {

@@ -265,44 +265,32 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         doc.add_paragraph()
 
     def _add_product_sections(self, doc: Document, combined_analysis: Dict):
-        """Add product-specific analysis sections"""
-        doc.add_heading('Product-Specific Analysis', level=1)
+        """Add product-specific analysis sections with rich content"""
+        doc.add_heading('Product-Specific Capabilities', level=1)
         
         product_analyses = combined_analysis.get('product_analyses', [])
         for product_data in product_analyses:
             product_name = product_data.get('product', 'Unknown')
             analysis = product_data.get('analysis', {})
             
-            doc.add_heading(f'{product_name} - {analysis.get("pillar", "Unknown")} Analysis', level=2)
-            
-            # Add key points for this product
-            key_points = analysis.get('key_points', [])
-            if key_points:
-                doc.add_heading('Key Capabilities', level=3)
-                for i, point in enumerate(key_points[:5], 1):  # Limit to top 5 per product
-                    if len(point) > 150:
-                        point = point[:147] + "..."
-                    doc.add_paragraph(f"{i}. {point}")
-            
-            # Add conversation flow if available
-            if 'conversation_flow' in analysis and analysis['conversation_flow']:
-                doc.add_heading('Technical Details', level=3)
-                for i, q_data in enumerate(analysis['conversation_flow'][:3], 1):  # Limit to 3 questions per product
-                    question = q_data.get('question', 'No question available')
-                    answer = q_data.get('answer', 'No answer available')
-                    
-                    if len(question) > 80:
-                        question = question[:77] + "..."
-                    if len(answer) > 200:
-                        answer = answer[:197] + "..."
-                    
-                    q_para = doc.add_paragraph()
-                    q_run = q_para.add_run(f"Q{i}: {question}")
-                    q_run.bold = True
-                    
-                    doc.add_paragraph(answer)
-            
-                doc.add_paragraph()  # Add spacing between products
+            doc.add_heading(f'{product_name} - Comprehensive Analysis', level=2)
+
+            # Get all answers and create rich content
+            answers = analysis.get('answers', [])
+            if answers:
+                # Create coherent content for this specific product
+                product_content = self._create_coherent_content(answers, analysis.get('pillar', 'Unknown'), product_name)
+                
+                # Split into paragraphs and add to document
+                paragraphs = product_content.split('\n\n')
+                for paragraph in paragraphs:
+                    if paragraph.strip() and len(paragraph.strip()) > 50:
+                        doc.add_paragraph(paragraph.strip())
+                        doc.add_paragraph()  # Add spacing
+            else:
+                doc.add_paragraph(f"No detailed analysis available for {product_name}.")
+
+            doc.add_paragraph()  # Add spacing between products
 
     def _add_rfp_content(self, doc: Document, analysis: Dict):
         """Add RFP-ready content without Q&A format"""
