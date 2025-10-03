@@ -22,104 +22,48 @@ class TemenosRAGClient:
         self.timeout = API_CONFIG['timeout']
         self.api_calls_count = 0  # Track API calls
         
-        # Technology pillars configuration for RFP responses
+        # Technology pillars configuration for RFP responses (OPTIMIZED VERSION)
         self.technology_pillars = {
             "Architecture": {
                 "description": "Overall system architecture, deployment options, cloud capabilities, and infrastructure design",
-                "context": "focus on architectural overview, deployment options, cloud capabilities, and infrastructure design",
+                "context": "Provide comprehensive architectural overview including design philosophy, components, deployment options, scalability, high availability, performance, architectural patterns, containerization, cloud-native features, data architecture, API management, and multi-tenancy capabilities",
                 "questions": [
-                    "What is the overall architectural approach and design philosophy of {product}?",
-                    "What are the main architectural components and how do they interact with each other?",
-                    "What deployment options are available (cloud, on-premises, hybrid) and their characteristics?",
-                    "How does {product} handle scalability and what are the scaling mechanisms?",
-                    "What are the high availability and disaster recovery architectural features?",
-                    "How is {product} designed for performance and what are the key performance characteristics?",
-                    "What architectural patterns are used (microservices, layered, event-driven) and why?",
-                    "How does the architecture support different deployment environments and configurations?",
-                    "What containerization and orchestration technologies are used in {product}?",
-                    "How does {product} implement event-driven architecture and messaging patterns?",
-                    "What are the specific cloud-native features and capabilities of {product}?",
-                    "How does {product} handle data consistency and transaction management across distributed components?",
-                    "What are the specific API management and gateway capabilities in {product}?",
-                    "What are the data architecture and data flow patterns in {product}?",
-                    "How does {product} support multi-tenancy and tenant isolation?"
+                    "Provide a comprehensive architectural overview of {product} including: 1) Overall design philosophy and approach, 2) Main architectural components and their interactions, 3) Deployment options (cloud, on-premises, hybrid) and characteristics, 4) Scalability mechanisms and performance design, 5) High availability and disaster recovery features, 6) Architectural patterns used (microservices, layered, event-driven), 7) Containerization and orchestration technologies, 8) Cloud-native features and capabilities, 9) Data architecture and flow patterns, 10) API management and gateway capabilities, 11) Multi-tenancy and tenant isolation support"
                 ]
             },
             "Extensibility": {
                 "description": "Extensibility features, customization capabilities, configuration tools, and developer frameworks",
-                "context": "focus on extensibility features, customization capabilities, configuration tools, and developer frameworks",
+                "context": "Provide comprehensive extensibility overview including customization capabilities, development tools, configuration options, plugin mechanisms, third-party integrations, low-code capabilities, and testing tools",
                 "questions": [
-                    "What extensibility and customization capabilities are available for tailoring {product}?",
-                    "What development tools, frameworks, and APIs are provided for customization?",
-                    "How can {product} be configured and customized without modifying core code?",
-                    "What plugin and extension mechanisms are available for adding new functionality?",
-                    "How does {product} support third-party integrations and custom adapters?",
-                    "What low-code or no-code development capabilities are available?",
-                    "How does {product} handle configuration management and environment-specific settings?",
-                    "What testing and validation tools are available for custom extensions?"
+                    "Provide a comprehensive extensibility overview of {product} including: 1) Customization capabilities and tailoring options, 2) Development tools, frameworks, and APIs for customization, 3) Configuration options without core code modification, 4) Plugin and extension mechanisms for new functionality, 5) Third-party integrations and custom adapters support, 6) Low-code and no-code development capabilities, 7) Configuration management and environment-specific settings, 8) Testing and validation tools for custom extensions"
                 ]
             },
             "DevOps": {
                 "description": "Deployment automation, CI/CD capabilities, testing frameworks, and operational tools",
-                "context": "focus on deployment automation, CI/CD capabilities, testing frameworks, and operational tools",
+                "context": "Provide comprehensive DevOps overview including deployment automation, CI/CD capabilities, testing frameworks, operational tools, infrastructure management, and monitoring capabilities",
                 "questions": [
-                    "What DevOps and deployment automation capabilities are available in {product}?",
-                    "What CI/CD pipeline features and automation tools are provided?",
-                    "How does {product} support automated testing and quality assurance?",
-                    "What deployment strategies and rollback mechanisms are available?",
-                    "How does {product} handle infrastructure management and provisioning?",
-                    "What monitoring and alerting capabilities are available for operations?",
-                    "How does {product} support continuous integration and continuous deployment?",
-                    "What operational tools and dashboards are available for system management?"
+                    "Provide a comprehensive DevOps overview of {product} including: 1) Deployment automation capabilities and tools, 2) CI/CD pipeline features and automation, 3) Automated testing and quality assurance support, 4) Deployment strategies and rollback mechanisms, 5) Infrastructure management and provisioning capabilities, 6) Monitoring and alerting for operations, 7) Continuous integration and deployment support, 8) Operational tools and dashboards for system management"
                 ]
             },
             "Security": {
                 "description": "Security features, compliance standards, authentication, authorization, and data protection",
-                "context": "focus on security features, compliance standards, authentication, authorization, and data protection",
+                "context": "Provide comprehensive security overview including built-in security features, authentication, authorization, encryption, compliance, monitoring, auditing, identity management, and incident response capabilities",
                 "questions": [
-                    "What security features and capabilities are built into {product}?",
-                    "How does {product} handle authentication and user identity management?",
-                    "What authorization and access control mechanisms are available?",
-                    "What encryption and data protection features are provided?",
-                    "What compliance standards and regulatory requirements are supported?",
-                    "How does {product} handle security monitoring and threat detection?",
-                    "What audit and logging capabilities are available for security events?",
-                    "How does {product} support security policies and governance?",
-                    "What are the specific identity and access management capabilities in {product}?",
-                    "How does {product} implement multi-factor authentication and single sign-on?",
-                    "What are the data encryption standards and key management practices in {product}?",
-                    "How does {product} handle security auditing and compliance reporting?",
-                    "What are the network security and firewall capabilities in {product}?",
-                    "How does {product} implement vulnerability management and security scanning?",
-                    "What are the incident response and security monitoring capabilities in {product}?"
+                    "Provide a comprehensive security overview of {product} including: 1) Built-in security features and capabilities, 2) Authentication and user identity management, 3) Authorization and access control mechanisms, 4) Encryption and data protection features, 5) Compliance standards and regulatory requirements, 6) Security monitoring and threat detection, 7) Audit and logging for security events, 8) Security policies and governance support, 9) Identity and access management capabilities, 10) Multi-factor authentication and single sign-on, 11) Data encryption standards and key management, 12) Security auditing and compliance reporting, 13) Network security and firewall capabilities, 14) Vulnerability management and security scanning, 15) Incident response and security monitoring"
                 ]
             },
             "Observability": {
                 "description": "Monitoring capabilities, logging, metrics, dashboards, and operational visibility",
-                "context": "focus on monitoring capabilities, logging, metrics, dashboards, and operational visibility",
+                "context": "Provide comprehensive observability overview including monitoring capabilities, logging, metrics, dashboards, alerting, tracing, analytics, and health monitoring",
                 "questions": [
-                    "What observability and monitoring capabilities are available in {product}?",
-                    "What logging and audit trail features are provided?",
-                    "What metrics collection and performance monitoring tools are available?",
-                    "What dashboards and reporting capabilities are provided for operations?",
-                    "How does {product} handle alerting and notification management?",
-                    "What tracing and debugging capabilities are available for troubleshooting?",
-                    "How does {product} support operational analytics and insights?",
-                    "What health monitoring and status reporting features are available?"
+                    "Provide a comprehensive observability overview of {product} including: 1) Monitoring capabilities and operational visibility, 2) Logging and audit trail features, 3) Metrics collection and performance monitoring tools, 4) Dashboards and reporting capabilities for operations, 5) Alerting and notification management, 6) Tracing and debugging capabilities for troubleshooting, 7) Operational analytics and insights support, 8) Health monitoring and status reporting features"
                 ]
             },
             "Integration": {
                 "description": "API capabilities, integration patterns, data streaming, and connectivity options",
-                "context": "focus on API capabilities, integration patterns, data streaming, and connectivity options",
+                "context": "Provide comprehensive integration overview including connectivity options, APIs, real-time streaming, messaging, data synchronization, protocol support, batch processing, and monitoring capabilities",
                 "questions": [
-                    "What integration capabilities and connectivity options are available in {product}?",
-                    "What APIs and web services are provided for system integration?",
-                    "How does {product} support real-time data streaming and event processing?",
-                    "What messaging and queuing capabilities are available for integration?",
-                    "How does {product} handle data synchronization and consistency?",
-                    "What protocol support and communication standards are available?",
-                    "How does {product} support batch processing and file-based integration?",
-                    "What integration monitoring and error handling capabilities are provided?"
+                    "Provide a comprehensive integration overview of {product} including: 1) Integration capabilities and connectivity options, 2) APIs and web services for system integration, 3) Real-time data streaming and event processing support, 4) Messaging and queuing capabilities for integration, 5) Data synchronization and consistency handling, 6) Protocol support and communication standards, 7) Batch processing and file-based integration support, 8) Integration monitoring and error handling capabilities"
                 ]
             }
         }
