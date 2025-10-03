@@ -130,9 +130,8 @@ jobs:
             --max-replicas 3 \
             --cpu 0.5 \
             --memory 1.0Gi \
-            --env-vars DEMO_MODE=false PORT=5000 \
-            --secrets temenos-jwt-token="${{ secrets.TEMENOS_JWT_TOKEN }}" \
-            --set-secrets TEMENOS_JWT_TOKEN=temenos-jwt-token
+            --env-vars DEMO_MODE=false PORT=5000 TEMENOS_JWT_TOKEN=secretref:temenos-jwt-token \
+            --secrets temenos-jwt-token="${{ secrets.TEMENOS_JWT_TOKEN }}"
         fi
         
         # Get the URL
