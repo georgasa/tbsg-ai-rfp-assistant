@@ -343,10 +343,12 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
             p = doc.add_paragraph(style='List Bullet')
             self._add_text_with_bold_keywords(p, key_point['title'])
             
-            # Add descriptive paragraph
+            # Add descriptive paragraph immediately after the bullet
             if key_point['description']:
                 desc_p = doc.add_paragraph()
                 desc_p.add_run(key_point['description'])
+                # Add extra space after each key point
+                doc.add_paragraph()
     
     def _add_important_topics_bullets(self, doc: Document, answer: str, product_name: str, pillar: str):
         """Add most important topics as bullets with bold keywords"""
@@ -426,16 +428,26 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         if len(numbered_sections) > 1:
             for i, section in enumerate(numbered_sections[1:], 1):  # Skip first empty part
                 if section.strip():
-                    # Split by first sentence to get title and description
-                    sentences = re.split(r'[.!?]+', section.strip())
-                    if len(sentences) >= 2:
-                        title = sentences[0].strip()
-                        description = '. '.join(sentences[1:]).strip()
-                        if description:
-                            description = description + '.'
+                    # Clean up the section
+                    section = section.strip()
+                    
+                    # Look for patterns like "APIs and Web Services for System Integration"
+                    # followed by description
+                    lines = section.split('\n')
+                    if len(lines) >= 2:
+                        title = lines[0].strip()
+                        description = '\n'.join(lines[1:]).strip()
                     else:
-                        title = section.strip()
-                        description = ""
+                        # Try to split by first sentence
+                        sentences = re.split(r'[.!?]+', section)
+                        if len(sentences) >= 2:
+                            title = sentences[0].strip()
+                            description = '. '.join(sentences[1:]).strip()
+                            if description:
+                                description = description + '.'
+                        else:
+                            title = section
+                            description = ""
                     
                     if len(title) > 10:  # Only include substantial content
                         key_points.append({
@@ -443,32 +455,54 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
                             'description': description
                         })
         else:
-            # If no numbered sections, split by sentences and group
-            sentences = re.split(r'[.!?]+', answer)
-            current_title = ""
-            current_description = ""
+            # If no numbered sections, try to extract from bullet points or paragraphs
+            # Look for patterns like "• APIs and Web Services for System Integration"
+            bullet_sections = re.split(r'\n\s*[•\-\*]\s*', answer)
             
-            for sentence in sentences:
-                sentence = sentence.strip()
-                if sentence and len(sentence) > 20:
-                    if not current_title:
-                        current_title = sentence
-                    elif len(current_description + sentence) < 300:
-                        current_description += sentence + ". "
-                    else:
-                        if current_title:
+            if len(bullet_sections) > 1:
+                for section in bullet_sections[1:]:  # Skip first empty part
+                    if section.strip():
+                        section = section.strip()
+                        lines = section.split('\n')
+                        if len(lines) >= 2:
+                            title = lines[0].strip()
+                            description = '\n'.join(lines[1:]).strip()
+                        else:
+                            title = section
+                            description = ""
+                        
+                        if len(title) > 10:
                             key_points.append({
-                                'title': current_title,
-                                'description': current_description.strip()
+                                'title': title,
+                                'description': description
                             })
-                        current_title = sentence
-                        current_description = ""
-            
-            if current_title:
-                key_points.append({
-                    'title': current_title,
-                    'description': current_description.strip()
-                })
+            else:
+                # Fallback: split by sentences and group
+                sentences = re.split(r'[.!?]+', answer)
+                current_title = ""
+                current_description = ""
+                
+                for sentence in sentences:
+                    sentence = sentence.strip()
+                    if sentence and len(sentence) > 20:
+                        if not current_title:
+                            current_title = sentence
+                        elif len(current_description + sentence) < 300:
+                            current_description += sentence + ". "
+                        else:
+                            if current_title:
+                                key_points.append({
+                                    'title': current_title,
+                                    'description': current_description.strip()
+                                })
+                            current_title = sentence
+                            current_description = ""
+                
+                if current_title:
+                    key_points.append({
+                        'title': current_title,
+                        'description': current_description.strip()
+                    })
         
         # Limit to top 6 key points
         return key_points[:6]
