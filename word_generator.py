@@ -290,10 +290,6 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         pillar = combined_analysis.get('pillar', 'Unknown')
         product_analyses = combined_analysis.get('product_analyses', [])
         
-        # Main pillar title
-        doc.add_heading(pillar, level=1)
-        doc.add_paragraph()
-        
         # Process each product
         for product_data in product_analyses:
             product_name = product_data.get('product', 'Unknown')
@@ -304,18 +300,19 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
             
             if len(answers) >= 2:
                 # First section: Most important topics as bullets with bold keywords
-                doc.add_heading(f'{product_name}', level=2)
+                doc.add_heading(f'{product_name}', level=1)
                 first_answer = answers[0]
                 self._add_important_topics_bullets(doc, first_answer, product_name, pillar)
                 doc.add_paragraph()
                 
-                # Second section: Detailed analysis in structured paragraphs
+                # Second section: Technical Analysis with detailed insights
+                doc.add_heading(f'{product_name} - Technical Analysis', level=2)
                 second_answer = answers[1]
                 self._add_detailed_analysis_paragraphs(doc, second_answer, product_name, pillar)
                 doc.add_paragraph()
             else:
                 # Fallback if we don't have 2 answers
-                doc.add_heading(f'{product_name}', level=2)
+                doc.add_heading(f'{product_name}', level=1)
                 if answers:
                     combined_answer = ' '.join(answers)
                     self._add_important_topics_bullets(doc, combined_answer, product_name, pillar)
@@ -332,9 +329,9 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         topics = self._extract_key_topics_from_answer(answer)
         
         for topic in topics:
-            # Create bullet point with bold keywords
-            bullet_text = self._format_bullet_with_bold_keywords(topic)
-            p = doc.add_paragraph(bullet_text, style='List Bullet')
+            # Create bullet point with proper bold formatting
+            p = doc.add_paragraph(style='List Bullet')
+            self._add_text_with_bold_keywords(p, topic)
     
     def _add_detailed_analysis_paragraphs(self, doc: Document, answer: str, product_name: str, pillar: str):
         """Add detailed analysis in well-structured separate paragraphs"""
@@ -449,6 +446,46 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
                 cleaned_paragraphs.append(para)
         
         return cleaned_paragraphs[:4]  # Limit to 4 paragraphs
+    
+    def _add_text_with_bold_keywords(self, paragraph, text: str):
+        """Add text to paragraph with proper bold formatting for keywords"""
+        if not text:
+            return
+        
+        # Define important keywords to make bold
+        important_keywords = [
+            'API', 'REST', 'JSON', 'OpenAPI', 'microservice', 'integration', 'connectivity',
+            'real-time', 'streaming', 'messaging', 'queuing', 'event', 'protocol', 'gateway',
+            'middleware', 'adapter', 'synchronous', 'asynchronous', 'scalable', 'performance',
+            'security', 'monitoring', 'analytics', 'cloud', 'container', 'deployment',
+            'architecture', 'framework', 'platform', 'solution', 'capability', 'feature'
+        ]
+        
+        import re
+        
+        # Split text by keywords and add with proper formatting
+        current_text = text
+        for keyword in important_keywords:
+            # Find all occurrences of the keyword (case-insensitive)
+            pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+            matches = list(pattern.finditer(current_text))
+            
+            if matches:
+                # Process matches in reverse order to maintain positions
+                for match in reversed(matches):
+                    start, end = match.span()
+                    # Add text before keyword
+                    if start > 0:
+                        paragraph.add_run(current_text[:start])
+                    # Add keyword in bold
+                    run = paragraph.add_run(current_text[start:end])
+                    run.bold = True
+                    # Update current_text for next iteration
+                    current_text = current_text[end:]
+        
+        # Add remaining text
+        if current_text:
+            paragraph.add_run(current_text)
     
     def _clean_answer_for_display(self, answer: str) -> str:
         """Clean and format answer text for better display in Word document"""
