@@ -199,9 +199,14 @@ class TemenosRAGClient:
         
         response2 = self.query_rag(follow_up_question, region, model_id, context)
         
+        print(f"DEBUG: Second API call response: {response2}")
+        
         if response2:
             data2 = response2.get('data', {})
             second_answer = data2.get('answer', 'No answer received') if data2 else 'No answer received'
+            
+            print(f"DEBUG: Second answer length: {len(second_answer) if second_answer else 0}")
+            print(f"DEBUG: Second answer preview: {second_answer[:200] if second_answer else 'None'}...")
             
             if second_answer and second_answer.lower() not in ['no answer received', 'no answer', '']:
                 pillar_data["questions_asked"].append(follow_up_question)
@@ -215,6 +220,10 @@ class TemenosRAGClient:
                 
                 key_points = self._extract_key_points_from_answer(second_answer)
                 pillar_data["key_points"].extend(key_points)
+            else:
+                print(f"DEBUG: Second answer is empty or invalid: '{second_answer}'")
+        else:
+            print("DEBUG: Second API call failed - no response")
         
         # Generate summary
         pillar_data["summary"] = self._generate_pillar_summary(pillar_data)
