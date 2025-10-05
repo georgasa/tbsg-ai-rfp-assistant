@@ -299,12 +299,8 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
             answers = analysis.get('answers', [])
             
             if len(answers) >= 2:
-                # Main title: Pillar name
-                doc.add_heading(pillar, level=1)
-                doc.add_paragraph()
-                
-                # Subtitle: Product name
-                doc.add_heading(product_name, level=2)
+                # Main title: Product name (no redundant pillar title)
+                doc.add_heading(product_name, level=1)
                 doc.add_paragraph()
                 
                 # Key-points section

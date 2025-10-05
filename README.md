@@ -1,49 +1,56 @@
 # TBSG AI RFP Assistant
 
-[![CI/CD Pipeline](https://github.com/georgasa/tbsg-ai-rfp-assistant/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/georgasa/tbsg-ai-rfp-assistant/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
-
-A comprehensive web application for generating RFP responses using Temenos RAG API with a modern, Temenos Explorer-inspired interface.
-
-## 🔗 **Repository**
-- **GitHub**: https://github.com/georgasa/tbsg-ai-rfp-assistant
-- **Live Demo**: [Coming Soon - Azure Deployment]
+A comprehensive AI-powered RFP (Request for Proposal) assistant that generates detailed technical analysis documents for Temenos banking solutions.
 
 ## 🚀 Features
 
-- **Technology Pillar Analysis**: Analyze 6 key technology pillars (Architecture, Extensibility, DevOps, Security, Observability, Integration)
-- **RFP-Ready Output**: Generate professional Word documents suitable for RFP responses
-- **Modern UI**: Temenos Explorer-inspired interface with dark blue sidebar and clean design
-- **RESTful APIs**: Full API access for external integrations
-- **Batch Processing**: Analyze multiple pillars simultaneously
-- **Azure Ready**: Deployable as Azure Web App or Azure Functions
+- **AI-Powered Analysis**: Uses RAG (Retrieval-Augmented Generation) to analyze technology pillars
+- **2-API Call Strategy**: Comprehensive overview + detailed technical insights
+- **Professional Word Documents**: Generates structured reports with key points and detailed analysis
+- **Multi-Pillar Support**: Architecture, Extensibility, DevOps, Security, Observability, Integration
+- **Real-time Processing**: Fast analysis and document generation
+- **Azure Deployment**: Cloud-native containerized application
 
-## 🏗️ Architecture
+## 📁 Project Structure
 
-### Technology Pillars
-- **Architecture**: Overall system architecture, deployment options, cloud capabilities
-- **Extensibility**: Customization capabilities, development tools, frameworks
-- **DevOps**: Deployment automation, CI/CD, operational tools
-- **Security**: Security features, compliance, authentication, authorization
-- **Observability**: Monitoring, logging, metrics, dashboards
-- **Integration**: APIs, connectivity, data streaming
+```
+tbsg-ai/
+├── app.py                 # Main Flask application
+├── rag_client.py          # RAG API client for AI analysis
+├── word_generator.py      # Word document generation
+├── shared_config.py       # Shared configuration
+├── requirements.txt       # Python dependencies
+├── Dockerfile            # Container configuration
+├── docker-compose.yml    # Local development setup
+├── static/               # Web assets
+│   ├── css/
+│   └── js/
+├── templates/            # HTML templates
+├── docs/                 # Documentation
+│   ├── README.md
+│   ├── AZURE_DEPLOYMENT.md
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── DEPLOYMENT_INSTRUCTIONS.md
+│   └── GITHUB_SECRETS_SETUP.md
+├── scripts/              # Deployment scripts
+│   ├── setup-azure.ps1
+│   └── setup-azure.sh
+├── tests/                # Test files
+│   └── test_basic.py
+└── word_documents/       # Generated documents
+```
 
-### Components
-- **Web Application**: Flask-based UI with Temenos Explorer look & feel
-- **RAG Client**: Core functionality for Temenos RAG API interaction
-- **Word Generator**: Convert analysis to professional Word documents
-- **API Layer**: RESTful endpoints for external access
-- **Azure Functions**: Serverless deployment option
+## 🛠️ Technology Stack
 
-## 📋 Prerequisites
+- **Backend**: Python Flask
+- **AI/ML**: RAG API integration
+- **Document Generation**: python-docx
+- **Frontend**: HTML, CSS, JavaScript
+- **Containerization**: Docker
+- **Cloud**: Azure Container Apps
+- **CI/CD**: GitHub Actions
 
-- Python 3.8+
-- Temenos RAG API access
-- JWT token for authentication
-
-## 🛠️ Installation
+## 🚀 Quick Start
 
 ### Local Development
 
@@ -58,10 +65,10 @@ A comprehensive web application for generating RFP responses using Temenos RAG A
    pip install -r requirements.txt
    ```
 
-3. **Configure environment**
+3. **Set environment variables**
    ```bash
-   # Set your JWT token
-   export TEMENOS_JWT_TOKEN="your_jwt_token_here"
+   cp env.example .env
+   # Edit .env with your configuration
    ```
 
 4. **Run the application**
@@ -70,228 +77,117 @@ A comprehensive web application for generating RFP responses using Temenos RAG A
    ```
 
 5. **Access the application**
-   - Open browser to `http://localhost:5000`
-   - Use the Temenos Explorer-inspired interface
+   - Open http://localhost:5000 in your browser
 
-### Azure Deployment
+### Docker Development
 
-#### Option 1: Azure Web App
-
-1. **Create Azure Web App**
+1. **Build and run with Docker Compose**
    ```bash
-   az webapp create --resource-group myResourceGroup --plan myAppServicePlan --name myWebApp --runtime "PYTHON|3.9"
+   docker-compose up --build
    ```
 
-2. **Configure environment variables**
-   ```bash
-   az webapp config appsettings set --resource-group myResourceGroup --name myWebApp --settings TEMENOS_JWT_TOKEN="your_jwt_token"
-   ```
+## 📋 API Endpoints
 
-3. **Deploy the application**
-   ```bash
-   az webapp deployment source config --resource-group myResourceGroup --name myWebApp --repo-url <your-repo-url> --branch main --manual-integration
-   ```
+### POST /api/analyze
+Analyze technology pillars and generate comprehensive reports.
 
-#### Option 2: Azure Functions
+**Request Body:**
+```json
+{
+  "region": "GLOBAL",
+  "model_id": "TechnologyOverview",
+  "products": ["Transact"],
+  "pillar": "Integration"
+}
+```
 
-1. **Create Function App**
-   ```bash
-   az functionapp create --resource-group myResourceGroup --consumption-plan-location westeurope --runtime python --runtime-version 3.9 --functions-version 4 --name myFunctionApp --storage-account mystorageaccount
-   ```
+**Response:**
+- Combined analysis with key points and detailed insights
+- API call count tracking
+- Structured data for document generation
 
-2. **Deploy functions**
-   ```bash
-   func azure functionapp publish myFunctionApp
-   ```
+### GET /api/reports
+List available generated reports.
+
+### GET /api/download/{filename}
+Download generated Word documents.
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `TEMENOS_JWT_TOKEN` | JWT token for Temenos RAG API | Yes |
-| `FLASK_ENV` | Flask environment (development/production) | No |
-| `AZURE_STORAGE_CONNECTION_STRING` | Azure Storage connection string | No |
+- `DEMO_MODE`: Enable/disable demo mode
+- `PORT`: Application port (default: 5000)
+- `TEMENOS_JWT_TOKEN`: JWT token for RAG API access
 
-### API Configuration
+### RAG API Configuration
 
-The system uses the following default configuration:
+The application integrates with Temenos RAG API for AI-powered analysis:
+- **Region**: GLOBAL
+- **Model**: TechnologyOverview
+- **API Limit**: 2000 characters per question
 
-```python
-API_CONFIG = {
-    "base_url": "https://rag.temenos.com/api/v1",
-    "timeout": 30,
-    "max_retries": 3
-}
+## 📊 Document Structure
+
+Generated Word documents include:
+
+1. **Product Title**: Main heading (e.g., "Transact")
+2. **Key-points Section**: 
+   - 6 bullet points with bold keywords
+   - Descriptive paragraphs for each point
+3. **Details Section**:
+   - Comprehensive technical analysis
+   - Performance metrics and benchmarks
+   - Competitive advantages
+   - Business value propositions
+4. **Document Information**:
+   - API calls made counter
+   - Generation timestamp
+   - Product and pillar information
+
+## 🚀 Deployment
+
+### Azure Container Apps
+
+The application is deployed on Azure Container Apps with:
+- **Automatic scaling**: 0-3 replicas based on demand
+- **CI/CD**: GitHub Actions for automated deployment
+- **Secrets management**: Secure JWT token storage
+- **Monitoring**: Application logs and metrics
+
+### Deployment Process
+
+1. **Push to main branch** triggers automatic deployment
+2. **GitHub Actions** builds Docker image
+3. **Azure Container Apps** deploys new revision
+4. **Health checks** ensure successful deployment
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+python -m pytest tests/
 ```
-
-## 📚 API Reference
-
-### Endpoints
-
-#### Health Check
-```http
-GET /api/health
-```
-
-#### Test Connection
-```http
-GET /api/test-connection
-```
-
-#### Get Pillars
-```http
-GET /api/pillars
-```
-
-#### Analyze Pillar
-```http
-POST /api/analyze
-Content-Type: application/json
-
-{
-    "region": "GLOBAL",
-    "model_id": "TechnologyOverview",
-    "product_name": "Temenos Transact",
-    "pillar": "Architecture"
-}
-```
-
-#### Batch Analyze
-```http
-POST /api/batch-analyze
-Content-Type: application/json
-
-{
-    "region": "GLOBAL",
-    "model_id": "TechnologyOverview",
-    "product_name": "Temenos Transact",
-    "pillars": ["Architecture", "Security", "Integration"]
-}
-```
-
-#### Generate Word Document
-```http
-POST /api/generate-word
-Content-Type: application/json
-
-{
-    "analysis": { /* analysis data */ }
-}
-```
-
-#### Download File
-```http
-GET /api/download/{filename}
-```
-
-#### List Reports
-```http
-GET /api/reports
-```
-
-#### List Word Documents
-```http
-GET /api/word-documents
-```
-
-## 🎨 UI Features
-
-### Temenos Explorer Design
-- **Dark Blue Sidebar**: Navigation with Temenos branding
-- **Clean Interface**: Light blue background with white content boxes
-- **Professional Typography**: Segoe UI font family
-- **Responsive Design**: Works on desktop and mobile devices
-- **Interactive Elements**: Hover effects and smooth transitions
-
-### Key UI Components
-- **Pillar Selection**: Grid-based selection with visual feedback
-- **Progress Tracking**: Real-time progress bars for analysis
-- **Results Display**: Professional table layout for results
-- **File Management**: Download and manage generated documents
-- **Status Indicators**: Connection status and system health
-
-## 📊 Usage Examples
-
-### Single Pillar Analysis
-
-1. **Select Region**: Choose from Global, EMEA, Americas, APAC
-2. **Select Product**: Choose Temenos product (Transact, Wealth, Digital)
-3. **Select Pillar**: Choose technology pillar to analyze
-4. **Start Analysis**: Click "Start Analysis" button
-5. **Download Results**: Download Word document when complete
-
-### Batch Analysis
-
-1. **Select Multiple Pillars**: Choose multiple technology pillars
-2. **Start Batch Analysis**: Click "Batch Analyze All" button
-3. **Monitor Progress**: Watch real-time progress updates
-4. **Download All**: Download all generated documents
-
-### API Integration
-
-```python
-import requests
-
-# Test connection
-response = requests.get('https://your-app.azurewebsites.net/api/test-connection')
-print(response.json())
-
-# Analyze pillar
-analysis_data = {
-    "region": "GLOBAL",
-    "model_id": "TechnologyOverview",
-    "product_name": "Temenos Transact",
-    "pillar": "Architecture"
-}
-
-response = requests.post(
-    'https://your-app.azurewebsites.net/api/analyze',
-    json=analysis_data
-)
-result = response.json()
-```
-
-## 🔒 Security
-
-- **JWT Authentication**: Secure API access with JWT tokens
-- **Input Validation**: All inputs are validated and sanitized
-- **File Security**: Generated files are stored securely
-- **HTTPS Only**: All communications use HTTPS in production
-- **Environment Variables**: Sensitive data stored in environment variables
 
 ## 📈 Performance
 
-- **Optimized API Calls**: Reduced from 108 to 48 API calls per analysis
-- **Efficient Processing**: Streamlined analysis workflow
-- **Caching**: Intelligent caching of frequently accessed data
-- **Async Processing**: Non-blocking operations for better UX
+- **API Calls**: 2 calls per analysis (optimized for comprehensive coverage)
+- **Response Time**: < 30 seconds for complete analysis
+- **Document Size**: 30KB+ comprehensive reports
+- **Scalability**: Auto-scaling based on demand
 
-## 🐛 Troubleshooting
+## 🔒 Security
 
-### Common Issues
+- **JWT Authentication**: Secure API access
+- **Environment Variables**: Sensitive data protection
+- **Azure Secrets**: Secure credential management
+- **HTTPS**: Encrypted communication
 
-1. **Connection Failed**
-   - Check JWT token validity
-   - Verify network connectivity
-   - Check API endpoint availability
+## 📚 Documentation
 
-2. **Analysis Failed**
-   - Verify pillar selection
-   - Check product/model compatibility
-   - Review error logs
-
-3. **Word Generation Failed**
-   - Ensure python-docx is installed
-   - Check file permissions
-   - Verify analysis data format
-
-### Logs
-
-- **Application Logs**: Check console output for errors
-- **Azure Logs**: Use Azure portal for production logs
-- **API Logs**: Monitor API response codes and errors
+- [Azure Deployment Guide](docs/AZURE_DEPLOYMENT.md)
+- [Deployment Instructions](docs/DEPLOYMENT_INSTRUCTIONS.md)
+- [GitHub Secrets Setup](docs/GITHUB_SECRETS_SETUP.md)
 
 ## 🤝 Contributing
 
@@ -303,30 +199,13 @@ result = response.json()
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is proprietary to Temenos.
 
 ## 🆘 Support
 
-For support and questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation
-
-## 🔄 Version History
-
-### v2.0.0 (Current)
-- Complete UI redesign with Temenos Explorer look & feel
-- RESTful API implementation
-- Azure deployment support
-- Optimized analysis workflow
-- Professional Word document generation
-
-### v1.0.0
-- Initial release
-- Basic pillar analysis
-- Command-line interface
-- JSON output only
+For support and questions, contact the development team.
 
 ---
 
-**Built with ❤️ for Temenos RFP Excellence**
+**Version**: 1.0.0  
+**Last Updated**: October 2025
