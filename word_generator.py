@@ -286,7 +286,7 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         doc.add_paragraph()
 
     def _add_structured_chapters(self, doc: Document, combined_analysis: Dict):
-        """Add structured content with pillar title and structured product sections"""
+        """Add structured content matching the exact format from the image"""
         pillar = combined_analysis.get('pillar', 'Unknown')
         product_analyses = combined_analysis.get('product_analyses', [])
         
@@ -299,26 +299,54 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
             answers = analysis.get('answers', [])
             
             if len(answers) >= 2:
-                # First section: Most important topics as bullets with bold keywords
-                doc.add_heading(f'{product_name}', level=1)
-                first_answer = answers[0]
-                self._add_important_topics_bullets(doc, first_answer, product_name, pillar)
+                # Main title: Pillar name
+                doc.add_heading(pillar, level=1)
                 doc.add_paragraph()
                 
-                # Second section: Technical Analysis with detailed insights
-                doc.add_heading(f'{product_name} - Technical Analysis', level=2)
+                # Subtitle: Product name
+                doc.add_heading(product_name, level=2)
+                doc.add_paragraph()
+                
+                # Key-points section
+                doc.add_heading('Key-points', level=3)
+                first_answer = answers[0]
+                self._add_key_points_with_descriptions(doc, first_answer, product_name, pillar)
+                doc.add_paragraph()
+                
+                # Details section
+                doc.add_heading('Details', level=3)
                 second_answer = answers[1]
                 self._add_detailed_analysis_paragraphs(doc, second_answer, product_name, pillar)
                 doc.add_paragraph()
             else:
                 # Fallback if we don't have 2 answers
-                doc.add_heading(f'{product_name}', level=1)
+                doc.add_heading(pillar, level=1)
+                doc.add_heading(product_name, level=2)
                 if answers:
                     combined_answer = ' '.join(answers)
-                    self._add_important_topics_bullets(doc, combined_answer, product_name, pillar)
+                    doc.add_heading('Key-points', level=3)
+                    self._add_key_points_with_descriptions(doc, combined_answer, product_name, pillar)
                 else:
                     doc.add_paragraph(f"No detailed analysis available for {product_name} {pillar} capabilities.")
                 doc.add_paragraph()
+    
+    def _add_key_points_with_descriptions(self, doc: Document, answer: str, product_name: str, pillar: str):
+        """Add key points with bold titles and descriptive paragraphs like in the image"""
+        if not answer:
+            return
+        
+        # Extract key topics with their descriptions
+        key_points = self._extract_key_points_with_descriptions(answer)
+        
+        for key_point in key_points:
+            # Add bullet point with bold title
+            p = doc.add_paragraph(style='List Bullet')
+            self._add_text_with_bold_keywords(p, key_point['title'])
+            
+            # Add descriptive paragraph
+            if key_point['description']:
+                desc_p = doc.add_paragraph()
+                desc_p.add_run(key_point['description'])
     
     def _add_important_topics_bullets(self, doc: Document, answer: str, product_name: str, pillar: str):
         """Add most important topics as bullets with bold keywords"""
@@ -383,6 +411,67 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         
         # Limit to top 6 topics
         return topics[:6]
+    
+    def _extract_key_points_with_descriptions(self, answer: str) -> list:
+        """Extract key points with their descriptions from the answer"""
+        if not answer:
+            return []
+        
+        key_points = []
+        import re
+        
+        # Look for numbered sections (1), 2), etc.) with descriptions
+        numbered_sections = re.split(r'\n\s*\d+\)', answer)
+        
+        if len(numbered_sections) > 1:
+            for i, section in enumerate(numbered_sections[1:], 1):  # Skip first empty part
+                if section.strip():
+                    # Split by first sentence to get title and description
+                    sentences = re.split(r'[.!?]+', section.strip())
+                    if len(sentences) >= 2:
+                        title = sentences[0].strip()
+                        description = '. '.join(sentences[1:]).strip()
+                        if description:
+                            description = description + '.'
+                    else:
+                        title = section.strip()
+                        description = ""
+                    
+                    if len(title) > 10:  # Only include substantial content
+                        key_points.append({
+                            'title': title,
+                            'description': description
+                        })
+        else:
+            # If no numbered sections, split by sentences and group
+            sentences = re.split(r'[.!?]+', answer)
+            current_title = ""
+            current_description = ""
+            
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if sentence and len(sentence) > 20:
+                    if not current_title:
+                        current_title = sentence
+                    elif len(current_description + sentence) < 300:
+                        current_description += sentence + ". "
+                    else:
+                        if current_title:
+                            key_points.append({
+                                'title': current_title,
+                                'description': current_description.strip()
+                            })
+                        current_title = sentence
+                        current_description = ""
+            
+            if current_title:
+                key_points.append({
+                    'title': current_title,
+                    'description': current_description.strip()
+                })
+        
+        # Limit to top 6 key points
+        return key_points[:6]
     
     def _format_bullet_with_bold_keywords(self, topic: str) -> str:
         """Format bullet point with bold keywords"""
