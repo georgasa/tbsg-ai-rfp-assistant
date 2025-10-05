@@ -286,7 +286,7 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         doc.add_paragraph()
 
     def _add_structured_chapters(self, doc: Document, combined_analysis: Dict):
-        """Add structured content with pillar title and two main paragraphs"""
+        """Add structured content with pillar title and structured product sections"""
         pillar = combined_analysis.get('pillar', 'Unknown')
         product_analyses = combined_analysis.get('product_analyses', [])
         
@@ -303,31 +303,152 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
             answers = analysis.get('answers', [])
             
             if len(answers) >= 2:
-                # First paragraph: General information (from 1st API call)
-                doc.add_heading(f'{product_name} - {pillar} Overview', level=2)
+                # First section: Most important topics as bullets with bold keywords
+                doc.add_heading(f'{product_name}', level=2)
                 first_answer = answers[0]
-                # Clean up the answer for better formatting
-                cleaned_first = self._clean_answer_for_display(first_answer)
-                doc.add_paragraph(cleaned_first)
+                self._add_important_topics_bullets(doc, first_answer, product_name, pillar)
                 doc.add_paragraph()
                 
-                # Second paragraph: Deep dive insights (from 2nd API call)
-                doc.add_heading(f'{product_name} - Technical Details and Capabilities', level=2)
+                # Second section: Detailed analysis in structured paragraphs
                 second_answer = answers[1]
-                # Clean up the answer for better formatting
-                cleaned_second = self._clean_answer_for_display(second_answer)
-                doc.add_paragraph(cleaned_second)
+                self._add_detailed_analysis_paragraphs(doc, second_answer, product_name, pillar)
                 doc.add_paragraph()
             else:
                 # Fallback if we don't have 2 answers
-                doc.add_heading(f'{product_name} - {pillar} Analysis', level=2)
+                doc.add_heading(f'{product_name}', level=2)
                 if answers:
                     combined_answer = ' '.join(answers)
-                    cleaned_answer = self._clean_answer_for_display(combined_answer)
-                    doc.add_paragraph(cleaned_answer)
+                    self._add_important_topics_bullets(doc, combined_answer, product_name, pillar)
                 else:
                     doc.add_paragraph(f"No detailed analysis available for {product_name} {pillar} capabilities.")
                 doc.add_paragraph()
+    
+    def _add_important_topics_bullets(self, doc: Document, answer: str, product_name: str, pillar: str):
+        """Add most important topics as bullets with bold keywords"""
+        if not answer:
+            return
+        
+        # Extract key topics and create bullet points
+        topics = self._extract_key_topics_from_answer(answer)
+        
+        for topic in topics:
+            # Create bullet point with bold keywords
+            bullet_text = self._format_bullet_with_bold_keywords(topic)
+            p = doc.add_paragraph(bullet_text, style='List Bullet')
+    
+    def _add_detailed_analysis_paragraphs(self, doc: Document, answer: str, product_name: str, pillar: str):
+        """Add detailed analysis in well-structured separate paragraphs"""
+        if not answer:
+            return
+        
+        # Split answer into structured paragraphs
+        paragraphs = self._split_into_structured_paragraphs(answer)
+        
+        for paragraph_text in paragraphs:
+            if paragraph_text.strip():
+                doc.add_paragraph(paragraph_text.strip())
+    
+    def _extract_key_topics_from_answer(self, answer: str) -> list:
+        """Extract key topics from answer for bullet points"""
+        if not answer:
+            return []
+        
+        # Split by numbered points or key phrases
+        topics = []
+        
+        # Look for numbered points (1), 2), etc.)
+        import re
+        numbered_sections = re.split(r'\n\s*\d+\)', answer)
+        
+        if len(numbered_sections) > 1:
+            for i, section in enumerate(numbered_sections[1:], 1):  # Skip first empty part
+                if section.strip():
+                    # Clean up the section
+                    cleaned = section.strip()
+                    if len(cleaned) > 10:  # Only include substantial content
+                        topics.append(cleaned)
+        else:
+            # If no numbered sections, split by sentences and group
+            sentences = re.split(r'[.!?]+', answer)
+            current_topic = ""
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if sentence and len(sentence) > 20:
+                    if len(current_topic + sentence) < 200:  # Keep topics reasonable length
+                        current_topic += sentence + ". "
+                    else:
+                        if current_topic:
+                            topics.append(current_topic.strip())
+                        current_topic = sentence + ". "
+            
+            if current_topic:
+                topics.append(current_topic.strip())
+        
+        # Limit to top 6 topics
+        return topics[:6]
+    
+    def _format_bullet_with_bold_keywords(self, topic: str) -> str:
+        """Format bullet point with bold keywords"""
+        if not topic:
+            return ""
+        
+        # Define important keywords to make bold
+        important_keywords = [
+            'API', 'REST', 'JSON', 'OpenAPI', 'microservice', 'integration', 'connectivity',
+            'real-time', 'streaming', 'messaging', 'queuing', 'event', 'protocol', 'gateway',
+            'middleware', 'adapter', 'synchronous', 'asynchronous', 'scalable', 'performance',
+            'security', 'monitoring', 'analytics', 'cloud', 'container', 'deployment',
+            'architecture', 'framework', 'platform', 'solution', 'capability', 'feature'
+        ]
+        
+        # Make keywords bold
+        formatted_topic = topic
+        for keyword in important_keywords:
+            # Case-insensitive replacement
+            import re
+            pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+            formatted_topic = pattern.sub(f'**{keyword}**', formatted_topic)
+        
+        return formatted_topic
+    
+    def _split_into_structured_paragraphs(self, answer: str) -> list:
+        """Split answer into well-structured paragraphs"""
+        if not answer:
+            return []
+        
+        # Split by double newlines or major sections
+        import re
+        
+        # First try to split by double newlines
+        paragraphs = re.split(r'\n\s*\n', answer)
+        
+        if len(paragraphs) <= 1:
+            # If no double newlines, split by sentences and group
+            sentences = re.split(r'[.!?]+', answer)
+            paragraphs = []
+            current_paragraph = ""
+            
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if sentence and len(sentence) > 20:
+                    if len(current_paragraph + sentence) < 300:  # Keep paragraphs reasonable length
+                        current_paragraph += sentence + ". "
+                    else:
+                        if current_paragraph:
+                            paragraphs.append(current_paragraph.strip())
+                        current_paragraph = sentence + ". "
+            
+            if current_paragraph:
+                paragraphs.append(current_paragraph.strip())
+        
+        # Clean up paragraphs
+        cleaned_paragraphs = []
+        for para in paragraphs:
+            para = para.strip()
+            if para and len(para) > 30:  # Only include substantial paragraphs
+                cleaned_paragraphs.append(para)
+        
+        return cleaned_paragraphs[:4]  # Limit to 4 paragraphs
     
     def _clean_answer_for_display(self, answer: str) -> str:
         """Clean and format answer text for better display in Word document"""
