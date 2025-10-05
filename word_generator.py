@@ -286,35 +286,66 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         doc.add_paragraph()
 
     def _add_structured_chapters(self, doc: Document, combined_analysis: Dict):
-        """Add structured chapters organized by component and information type"""
+        """Add structured content with pillar title and two main paragraphs"""
         pillar = combined_analysis.get('pillar', 'Unknown')
         product_analyses = combined_analysis.get('product_analyses', [])
         
-        # Chapter 1: Executive Summary
-        doc.add_heading('Chapter 1: Executive Summary', level=1)
-        self._add_executive_summary_chapter(doc, combined_analysis)
-        doc.add_page_break()
+        # Main pillar title
+        doc.add_heading(pillar, level=1)
+        doc.add_paragraph()
         
-        # Chapter 2: Product-Specific Analysis
-        doc.add_heading('Chapter 2: Product-Specific Analysis', level=1)
+        # Process each product
         for product_data in product_analyses:
             product_name = product_data.get('product', 'Unknown')
             analysis = product_data.get('analysis', {})
             
-            doc.add_heading(f'2.{len([p for p in product_analyses if product_analyses.index(p) <= product_analyses.index(product_data)])} {product_name} - {pillar} Capabilities', level=2)
-            self._add_product_detailed_analysis(doc, analysis, product_name)
-            doc.add_paragraph()  # Add spacing between products
+            # Get answers from the analysis
+            answers = analysis.get('answers', [])
+            
+            if len(answers) >= 2:
+                # First paragraph: General information (from 1st API call)
+                doc.add_heading(f'{product_name} - {pillar} Overview', level=2)
+                first_answer = answers[0]
+                # Clean up the answer for better formatting
+                cleaned_first = self._clean_answer_for_display(first_answer)
+                doc.add_paragraph(cleaned_first)
+                doc.add_paragraph()
+                
+                # Second paragraph: Deep dive insights (from 2nd API call)
+                doc.add_heading(f'{product_name} - Technical Details and Capabilities', level=2)
+                second_answer = answers[1]
+                # Clean up the answer for better formatting
+                cleaned_second = self._clean_answer_for_display(second_answer)
+                doc.add_paragraph(cleaned_second)
+                doc.add_paragraph()
+            else:
+                # Fallback if we don't have 2 answers
+                doc.add_heading(f'{product_name} - {pillar} Analysis', level=2)
+                if answers:
+                    combined_answer = ' '.join(answers)
+                    cleaned_answer = self._clean_answer_for_display(combined_answer)
+                    doc.add_paragraph(cleaned_answer)
+                else:
+                    doc.add_paragraph(f"No detailed analysis available for {product_name} {pillar} capabilities.")
+                doc.add_paragraph()
+    
+    def _clean_answer_for_display(self, answer: str) -> str:
+        """Clean and format answer text for better display in Word document"""
+        if not answer:
+            return "No information available."
         
-        doc.add_page_break()
+        # Remove excessive whitespace and newlines
+        cleaned = ' '.join(answer.split())
         
-        # Chapter 3: Comparative Analysis
-        doc.add_heading('Chapter 3: Comparative Analysis', level=1)
-        self._add_comparative_analysis_chapter(doc, combined_analysis)
-        doc.add_page_break()
+        # Ensure proper sentence endings
+        if not cleaned.endswith(('.', '!', '?')):
+            cleaned += '.'
         
-        # Chapter 4: Key Findings and Recommendations
-        doc.add_heading('Chapter 4: Key Findings and Recommendations', level=1)
-        self._add_key_findings_chapter(doc, combined_analysis)
+        # Limit length to avoid overly long paragraphs
+        if len(cleaned) > 2000:
+            cleaned = cleaned[:1997] + "..."
+        
+        return cleaned
 
     def _add_executive_summary_chapter(self, doc: Document, combined_analysis: Dict):
         """Add executive summary chapter"""

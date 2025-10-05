@@ -195,7 +195,7 @@ class TemenosRAGClient:
             pillar_data["key_points"].extend(key_points)
         
         # Second API call - Deep dive based on first response
-        follow_up_question = f"Based on the following comprehensive {pillar.lower()} overview of {product_name}: '{first_answer[:500]}...', please provide additional detailed insights, specific technical capabilities, implementation examples, and business value propositions that would be particularly relevant for RFP responses. Focus on concrete features, performance metrics, and competitive advantages."
+        follow_up_question = f"Based on the following {pillar.lower()} information for {product_name}: '{first_answer[:500]}...', please provide specific technical details, implementation examples, performance metrics, and competitive advantages that would be valuable for RFP responses. Focus on concrete capabilities and business value."
         
         response2 = self.query_rag(follow_up_question, region, model_id, context)
         
