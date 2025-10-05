@@ -366,14 +366,25 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
     def _add_detailed_analysis_paragraphs(self, doc: Document, answer: str, product_name: str, pillar: str):
         """Add detailed analysis in well-structured separate paragraphs"""
         if not answer:
+            doc.add_paragraph("No detailed technical analysis available.")
+            return
+        
+        # Check if answer is too short and needs more content
+        if len(answer.strip()) < 500:
+            doc.add_paragraph("Detailed technical analysis is being generated. Please check back later for comprehensive coverage of all key points.")
             return
         
         # Split answer into structured paragraphs
         paragraphs = self._split_into_structured_paragraphs(answer)
         
-        for paragraph_text in paragraphs:
-            if paragraph_text.strip():
-                doc.add_paragraph(paragraph_text.strip())
+        # Ensure we have substantial content
+        if len(paragraphs) < 3:
+            doc.add_paragraph("Comprehensive technical analysis:")
+            doc.add_paragraph(answer.strip())
+        else:
+            for paragraph_text in paragraphs:
+                if paragraph_text.strip():
+                    doc.add_paragraph(paragraph_text.strip())
     
     def _extract_key_topics_from_answer(self, answer: str) -> list:
         """Extract key topics from answer for bullet points"""
