@@ -210,10 +210,8 @@ and provides detailed insights for client presentations and proposal development
             # Set up styles
             self._setup_styles(doc)
             
-            # Add title - only the pillar name
+            # Get pillar name for metadata
             pillar = combined_analysis.get('pillar', 'Unknown')
-            doc.add_heading(pillar, 0)
-            doc.add_paragraph()
             
             # Add structured chapters by component and information type
             self._add_structured_chapters(doc, combined_analysis)
