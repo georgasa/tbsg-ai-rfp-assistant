@@ -316,8 +316,7 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
                 doc.add_paragraph()
             else:
                 # Fallback if we don't have 2 answers
-                doc.add_heading(pillar, level=1)
-                doc.add_heading(product_name, level=2)
+                doc.add_heading(product_name, level=1)
                 if answers:
                     combined_answer = ' '.join(answers)
                     doc.add_heading('Key-points', level=3)
