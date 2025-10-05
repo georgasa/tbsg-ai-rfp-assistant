@@ -169,32 +169,52 @@ class TemenosRAGClient:
             "timestamp": datetime.now().isoformat()
         }
         
-        # Ask base questions
+        # First API call - Get comprehensive overview
         base_questions = pillar_config["questions"]
-        for i, question_template in enumerate(base_questions, 1):
-            question = question_template.format(product=product_name)
+        first_question = base_questions[0].format(product=product_name)
+        
+        response1 = self.query_rag(first_question, region, model_id, context)
+        
+        if not response1:
+            raise Exception("RAG API is not available. Cannot proceed with analysis.")
+        
+        data1 = response1.get('data', {})
+        first_answer = data1.get('answer', 'No answer received') if data1 else 'No answer received'
+        
+        if first_answer and first_answer.lower() not in ['no answer received', 'no answer', '']:
+            pillar_data["questions_asked"].append(first_question)
+            pillar_data["answers"].append(first_answer)
+            pillar_data["conversation_flow"].append({
+                "phase": "initial_overview",
+                "question": first_question,
+                "answer": first_answer,
+                "timestamp": datetime.now().isoformat()
+            })
             
-            response = self.query_rag(question, region, model_id, context)
+            key_points = self._extract_key_points_from_answer(first_answer)
+            pillar_data["key_points"].extend(key_points)
+        
+        # Second API call - Deep dive based on first response
+        follow_up_question = f"Based on the following comprehensive {pillar.lower()} overview of {product_name}: '{first_answer[:500]}...', please provide additional detailed insights, specific technical capabilities, implementation examples, and business value propositions that would be particularly relevant for RFP responses. Focus on concrete features, performance metrics, and competitive advantages."
+        
+        response2 = self.query_rag(follow_up_question, region, model_id, context)
+        
+        if response2:
+            data2 = response2.get('data', {})
+            second_answer = data2.get('answer', 'No answer received') if data2 else 'No answer received'
             
-            if response:
-                data = response.get('data', {})
-                answer = data.get('answer', 'No answer received') if data else 'No answer received'
+            if second_answer and second_answer.lower() not in ['no answer received', 'no answer', '']:
+                pillar_data["questions_asked"].append(follow_up_question)
+                pillar_data["answers"].append(second_answer)
+                pillar_data["conversation_flow"].append({
+                    "phase": "detailed_insights",
+                    "question": follow_up_question,
+                    "answer": second_answer,
+                    "timestamp": datetime.now().isoformat()
+                })
                 
-                if answer and answer.lower() not in ['no answer received', 'no answer', '']:
-                    pillar_data["questions_asked"].append(question)
-                    pillar_data["answers"].append(answer)
-                    pillar_data["conversation_flow"].append({
-                        "phase": "base",
-                        "question": question,
-                        "answer": answer,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    
-                    key_points = self._extract_key_points_from_answer(answer)
-                    pillar_data["key_points"].extend(key_points)
-            else:
-                # RAG API is not available - stop analysis
-                raise Exception("RAG API is not available. Cannot proceed with analysis.")
+                key_points = self._extract_key_points_from_answer(second_answer)
+                pillar_data["key_points"].extend(key_points)
         
         # Generate summary
         pillar_data["summary"] = self._generate_pillar_summary(pillar_data)
