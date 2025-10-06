@@ -288,6 +288,9 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         pillar = combined_analysis.get('pillar', 'Unknown')
         product_analyses = combined_analysis.get('product_analyses', [])
         
+        print(f"DEBUG: _add_structured_chapters called with pillar={pillar}")
+        print(f"DEBUG: Document has {len(doc.paragraphs)} paragraphs before processing")
+        
         # Process each product
         for product_data in product_analyses:
             product_name = product_data.get('product', 'Unknown')
