@@ -147,10 +147,11 @@ Generated Word documents include:
 ### Azure Container Apps
 
 The application is deployed on Azure Container Apps with:
-- **Automatic scaling**: 0-3 replicas based on demand
+- **Automatic scaling**: 1-3 replicas based on demand
 - **CI/CD**: GitHub Actions for automated deployment
 - **Secrets management**: Secure JWT token storage
 - **Monitoring**: Application logs and metrics
+- **Health checks**: `/api/health` endpoint for liveness and readiness probes
 
 ### Deployment Process
 
@@ -158,6 +159,26 @@ The application is deployed on Azure Container Apps with:
 2. **GitHub Actions** builds Docker image
 3. **Azure Container Apps** deploys new revision
 4. **Health checks** ensure successful deployment
+
+### Local Development with Docker Compose
+
+For local development with nginx reverse proxy:
+
+```bash
+# Start the full stack (app + nginx)
+docker-compose up --build
+
+# Access the application
+# HTTP: http://localhost
+# HTTPS: https://localhost (if SSL certificates are configured)
+```
+
+### Configuration Files
+
+- **`azure-container-app.yaml`**: Kubernetes deployment for Azure Container Apps
+- **`containerapp.yaml`**: Alternative Azure Container Apps configuration
+- **`docker-compose.yml`**: Local development with nginx reverse proxy
+- **`nginx.conf`**: Nginx configuration with security headers and SSL support
 
 ## 🧪 Testing
 
