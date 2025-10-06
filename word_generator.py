@@ -316,8 +316,15 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
                 
                 # Details section
                 doc.add_heading('Details', level=3)
-                second_answer = answers[1]
-                self._add_detailed_analysis_paragraphs(doc, second_answer, product_name, pillar)
+                # Combine all answers after the first one (2nd and 3rd API calls)
+                combined_detailed_answer = ""
+                for i in range(1, len(answers)):
+                    if answers[i] and len(answers[i].strip()) > 50:
+                        if combined_detailed_answer:
+                            combined_detailed_answer += "\n\n"
+                        combined_detailed_answer += answers[i]
+                
+                self._add_detailed_analysis_paragraphs(doc, combined_detailed_answer, product_name, pillar)
                 doc.add_paragraph()
             else:
                 # Fallback if we don't have 2 answers
