@@ -305,6 +305,7 @@ class TemenosRAGApp {
 
             if (data.success) {
                 this.updateProgress(100, 'Batch analysis completed!');
+                this.currentAnalysis = data; // Store results for download functionality
                 this.showBatchResults(data.results);
                 this.showMessage(`Batch analysis completed: ${data.summary.successful}/${data.summary.total} successful`, 'success');
             } else {
@@ -468,11 +469,35 @@ class TemenosRAGApp {
 
     async downloadAnalysis(pillar) {
         try {
-            // This would typically generate and download the Word document
-            this.showMessage(`Downloading ${pillar} analysis...`, 'success');
+            this.showMessage(`Downloading ${pillar} analysis...`, 'info');
+            
+            // Get the word document filename from the results
+            const results = this.currentAnalysis?.results || [];
+            const result = results.find(r => r.pillar === pillar);
+            
+            if (result && result.word_filename) {
+                // Download the Word document
+                const response = await fetch(`${this.apiBase}/download/${result.word_filename}`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.word_filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    this.showMessage(`Downloaded ${pillar} analysis successfully!`, 'success');
+                } else {
+                    throw new Error('Download failed');
+                }
+            } else {
+                throw new Error('No document available for download');
+            }
         } catch (error) {
             console.error('Download failed:', error);
-            this.showMessage('Download failed', 'error');
+            this.showMessage(`Download failed for ${pillar}: ${error.message}`, 'error');
         }
     }
 

@@ -402,14 +402,7 @@ def batch_analyze():
                         product_name=product_name,
                         pillar=pillar
                     )
-                except Exception as e:
-                    # RAG API is not available
-                    return jsonify({
-                        "success": False,
-                        "error": "RAG API is not available. Please check your connection and try again.",
-                        "details": str(e)
-                    }), 503
-                
+                    
                     filepath = rag_client.save_analysis(pillar_data)
                     
                     # Generate Word document
@@ -434,6 +427,14 @@ def batch_analyze():
                     successful += 1
                     
                 except Exception as e:
+                    # RAG API is not available
+                    if "RAG API is not available" in str(e):
+                        return jsonify({
+                            "success": False,
+                            "error": "RAG API is not available. Please check your connection and try again.",
+                            "details": str(e)
+                        }), 503
+                    
                     results.append({
                         "product": product_name,
                         "pillar": pillar,
