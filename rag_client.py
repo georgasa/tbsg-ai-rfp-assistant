@@ -194,36 +194,68 @@ class TemenosRAGClient:
             key_points = self._extract_key_points_from_answer(first_answer)
             pillar_data["key_points"].extend(key_points)
         
-        # Second API call - Deep dive based on ALL key points from first response
-        follow_up_question = f"Based on these {pillar.lower()} key points for {product_name}: '{first_answer[:500]}...', provide detailed technical analysis for: 1) APIs and Web Services - implementation, performance, security, use cases, 2) Real-Time Data Streaming - architecture, event processing, throughput, pub/sub integration, 3) Messaging and Queuing - protocols, queue management, resilience, 4) Data Synchronization - database architecture, CQRS, consistency models, 5) Protocol Support - supported protocols, transformations, compliance, 6) Batch Processing - file processing, ETL, bulk data handling. Include technical specs, examples, benchmarks, competitive advantages, and business value for RFP responses."
+        # Second API call - Deep dive for first 3 key points
+        follow_up_question_1 = f"Based on these {pillar.lower()} key points for {product_name}: '{first_answer[:500]}...', provide detailed technical analysis for: 1) APIs and Web Services - implementation, performance, security, use cases, competitive advantages, 2) Real-Time Data Streaming - architecture, event processing, throughput, pub/sub integration, performance benchmarks, 3) Messaging and Queuing - protocols, queue management, resilience, fault tolerance. Include technical specs, examples, benchmarks, and business value for RFP responses."
         
-        response2 = self.query_rag(follow_up_question, region, model_id, context)
+        response2 = self.query_rag(follow_up_question_1, region, model_id, context)
         
         print(f"DEBUG: Second API call response: {response2}")
         
+        second_answer = ""
         if response2:
             data2 = response2.get('data', {})
             second_answer = data2.get('answer', 'No answer received') if data2 else 'No answer received'
-            
             print(f"DEBUG: Second answer length: {len(second_answer) if second_answer else 0}")
             print(f"DEBUG: Second answer preview: {second_answer[:200] if second_answer else 'None'}...")
-            
-            if second_answer and second_answer.lower() not in ['no answer received', 'no answer', '']:
-                pillar_data["questions_asked"].append(follow_up_question)
-                pillar_data["answers"].append(second_answer)
-                pillar_data["conversation_flow"].append({
-                    "phase": "detailed_insights",
-                    "question": follow_up_question,
-                    "answer": second_answer,
-                    "timestamp": datetime.now().isoformat()
-                })
-                
-                key_points = self._extract_key_points_from_answer(second_answer)
-                pillar_data["key_points"].extend(key_points)
-            else:
-                print(f"DEBUG: Second answer is empty or invalid: '{second_answer}'")
         else:
             print("DEBUG: Second API call failed - no response")
+        
+        # Third API call - Deep dive for remaining 3 key points
+        follow_up_question_2 = f"Based on these {pillar.lower()} key points for {product_name}: '{first_answer[:500]}...', provide detailed technical analysis for: 1) Data Synchronization - database architecture, CQRS implementation, consistency models, performance characteristics, scalability, 2) Protocol Support - supported protocols, transformation capabilities, compliance standards, interoperability, security protocols, 3) Batch Processing and File-Based Integration - file processing capabilities, ETL solutions, bulk data handling, SFTP support, protocol transformations, integration patterns. Include technical specs, examples, benchmarks, competitive advantages, and business value for RFP responses."
+        
+        response3 = self.query_rag(follow_up_question_2, region, model_id, context)
+        
+        print(f"DEBUG: Third API call response: {response3}")
+        
+        third_answer = ""
+        if response3:
+            data3 = response3.get('data', {})
+            third_answer = data3.get('answer', 'No answer received') if data3 else 'No answer received'
+            print(f"DEBUG: Third answer length: {len(third_answer) if third_answer else 0}")
+            print(f"DEBUG: Third answer preview: {third_answer[:200] if third_answer else 'None'}...")
+        else:
+            print("DEBUG: Third API call failed - no response")
+        
+        # Combine second and third answers
+        combined_detailed_answer = ""
+        if second_answer and second_answer.lower() not in ['no answer received', 'no answer', '']:
+            combined_detailed_answer += second_answer + "\n\n"
+        if third_answer and third_answer.lower() not in ['no answer received', 'no answer', '']:
+            combined_detailed_answer += third_answer
+        
+        if combined_detailed_answer:
+            pillar_data["questions_asked"].extend([follow_up_question_1, follow_up_question_2])
+            pillar_data["answers"].append(combined_detailed_answer)
+            pillar_data["conversation_flow"].extend([
+                {
+                    "phase": "detailed_insights_part1",
+                    "question": follow_up_question_1,
+                    "answer": second_answer,
+                    "timestamp": datetime.now().isoformat()
+                },
+                {
+                    "phase": "detailed_insights_part2", 
+                    "question": follow_up_question_2,
+                    "answer": third_answer,
+                    "timestamp": datetime.now().isoformat()
+                }
+            ])
+            
+            key_points = self._extract_key_points_from_answer(combined_detailed_answer)
+            pillar_data["key_points"].extend(key_points)
+            print(f"DEBUG: Added combined detailed answer to pillar_data")
+        else:
+            print("DEBUG: No valid detailed answers received")
         
         # Generate summary
         pillar_data["summary"] = self._generate_pillar_summary(pillar_data)
