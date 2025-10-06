@@ -175,24 +175,22 @@ and provides detailed insights for client presentations and proposal development
         doc.add_paragraph(f"Region: {metadata.get('region', 'Unknown')}")
     
     def convert_json_to_word(self, json_filepath: str) -> Optional[str]:
-        """Convert JSON analysis file to Word document"""
+        """Convert JSON analysis file to Word document using the correct structure"""
         try:
             with open(json_filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
-            # Structure the data properly for create_document
-            structured_data = {
-                "metadata": {
-                    "pillar": data.get('pillar', 'Unknown'),
+            # Structure the data properly for create_combined_document (same as single analysis)
+            combined_analysis = {
+                "pillar": data.get('pillar', 'Unknown'),
+                "product_analyses": [{
                     "product": data.get('product', 'Unknown'),
-                    "region": data.get('region', 'Unknown'),
-                    "timestamp": data.get('timestamp', ''),
-                    "api_calls_made": data.get('api_calls_made', 0)
-                },
-                "analysis": data
+                    "analysis": data
+                }],
+                "total_api_calls": data.get('api_calls_made', 0)
             }
             
-            return self.create_document(structured_data)
+            return self.create_combined_document(combined_analysis)
             
         except Exception as e:
             print(f"Error converting JSON to Word: {e}")
