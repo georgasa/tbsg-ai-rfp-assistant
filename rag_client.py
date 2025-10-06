@@ -210,8 +210,8 @@ class TemenosRAGClient:
         else:
             print("DEBUG: Second API call failed - no response")
         
-        # Third API call - Deep dive for remaining 3 key points
-        follow_up_question_2 = f"Based on these {pillar.lower()} key points for {product_name}: '{first_answer[:500]}...', provide detailed technical analysis for: 1) Data Synchronization - database architecture, CQRS implementation, consistency models, performance characteristics, scalability, 2) Protocol Support - supported protocols, transformation capabilities, compliance standards, interoperability, security protocols, 3) Batch Processing and File-Based Integration - file processing capabilities, ETL solutions, bulk data handling, SFTP support, protocol transformations, integration patterns. Include technical specs, examples, benchmarks, competitive advantages, and business value for RFP responses."
+        # Third API call - Cover any remaining key points not covered in second call
+        follow_up_question_2 = f"Based on these {pillar.lower()} key points for {product_name}: '{first_answer[:500]}...', provide detailed technical analysis for any remaining areas not covered in the previous response. Focus on: 1) User Interface components (Explorer, UUX, SSO integration), 2) Non-cloud deployment options (VM-based, hybrid, traditional infrastructure), 3) Disaster Recovery strategies and procedures, 4) Any other architectural aspects, patterns, or technologies mentioned in the key points that need deeper technical analysis. Include technical specs, examples, benchmarks, competitive advantages, and business value for RFP responses."
         
         response3 = self.query_rag(follow_up_question_2, region, model_id, context)
         
