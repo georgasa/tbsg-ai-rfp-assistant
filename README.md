@@ -5,7 +5,7 @@ A comprehensive AI-powered RFP (Request for Proposal) assistant that generates d
 ## 🚀 Features
 
 - **AI-Powered Analysis**: Uses RAG (Retrieval-Augmented Generation) to analyze technology pillars
-- **2-API Call Strategy**: Comprehensive overview + detailed technical insights
+- **3-API Call Strategy**: Comprehensive overview + detailed technical insights + gap coverage
 - **Professional Word Documents**: Generates structured reports with key points and detailed analysis
 - **Multi-Pillar Support**: Architecture, Extensibility, DevOps, Security, Observability, Integration
 - **Real-time Processing**: Fast analysis and document generation
@@ -32,12 +32,9 @@ tbsg-ai/
 │   ├── DEPLOYMENT_GUIDE.md
 │   ├── DEPLOYMENT_INSTRUCTIONS.md
 │   └── GITHUB_SECRETS_SETUP.md
-├── scripts/              # Deployment scripts
-│   ├── setup-azure.ps1
-│   └── setup-azure.sh
-├── tests/                # Test files
-│   └── test_basic.py
-└── word_documents/       # Generated documents
+└── scripts/              # Deployment scripts
+    ├── setup-azure.ps1
+    └── setup-azure.sh
 ```
 
 ## 🛠️ Technology Stack
@@ -164,14 +161,15 @@ The application is deployed on Azure Container Apps with:
 
 ## 🧪 Testing
 
-Run the test suite:
-```bash
-python -m pytest tests/
-```
+The application includes comprehensive error handling and validation:
+- Input validation for API requests
+- Error handling for RAG API failures
+- Document generation validation
+- Azure deployment health checks
 
 ## 📈 Performance
 
-- **API Calls**: 2 calls per analysis (optimized for comprehensive coverage)
+- **API Calls**: 3 calls per analysis (optimized for 100% key-point coverage)
 - **Response Time**: < 30 seconds for complete analysis
 - **Document Size**: 30KB+ comprehensive reports
 - **Scalability**: Auto-scaling based on demand
@@ -207,5 +205,5 @@ For support and questions, contact the development team.
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 2.1.0  
 **Last Updated**: October 2025

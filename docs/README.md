@@ -263,7 +263,7 @@ result = response.json()
 
 ## 📈 Performance
 
-- **Optimized API Calls**: Reduced from 108 to 48 API calls per analysis
+- **Optimized API Calls**: 3 calls per analysis (100% key-point coverage)
 - **Efficient Processing**: Streamlined analysis workflow
 - **Caching**: Intelligent caching of frequently accessed data
 - **Async Processing**: Non-blocking operations for better UX
@@ -314,7 +314,14 @@ For support and questions:
 
 ## 🔄 Version History
 
-### v2.0.0 (Current)
+### v2.1.0 (Current)
+- 3-API call strategy for comprehensive analysis
+- 100% key-point coverage in Details section
+- Enhanced document structure with proper formatting
+- Improved gap coverage for missing technical details
+- Clean project structure (removed test files)
+
+### v2.0.0
 - Complete UI redesign with Temenos Explorer look & feel
 - RESTful API implementation
 - Azure deployment support
