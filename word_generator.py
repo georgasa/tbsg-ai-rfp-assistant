@@ -335,16 +335,11 @@ demonstrating the comprehensive {pillar} coverage and competitive advantages of 
         key_points = self._extract_key_points_with_descriptions(answer)
         
         for key_point in key_points:
-            # Add bullet point with bold title
+            # Add bullet point with title and description in single line
             p = doc.add_paragraph(style='List Bullet')
-            self._add_text_with_bold_keywords(p, key_point['title'])
+            self._add_text_with_bold_keywords(p, key_point['title'] + ": " + key_point['description'])
             
-            # Add descriptive paragraph immediately after the bullet
-            if key_point['description']:
-                desc_p = doc.add_paragraph()
-                desc_p.add_run(key_point['description'])
-                # Add extra space after each key point
-                doc.add_paragraph()
+            doc.add_paragraph()  # Add extra space after each key point
     
     def _add_important_topics_bullets(self, doc: Document, answer: str, product_name: str, pillar: str):
         """Add most important topics as bullets with bold keywords"""
